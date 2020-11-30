@@ -7,12 +7,15 @@ stage_sources = [('./resources/graphicals/stage_bottom.png', (WINHALFWIDTH, 0)),
                  ('./resources/graphicals/stage_left.png', (WINHALFWIDTH - (128 + 16), 64 )),
                  ('./resources/graphicals/stage_right.png', (WINHALFWIDTH + 128 + 16, 64 ))]
 
-player_sources = [[
-    pygame.image.load('./resources/graphicals/player_idle_1.png'),
+player_sources = [
+    [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
     pygame.image.load('./resources/graphicals/player_idle_3.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),],
-                  ]
+    [pygame.image.load('./resources/graphicals/player_move_1.png'),
+    pygame.image.load('./resources/graphicals/player_move_2.png'),
+    pygame.image.load('./resources/graphicals/player_idle_3.png'),
+    pygame.image.load('./resources/graphicals/player_move_2.png'),],]
 
 for i, (x, y) in stage_sources:
     img = pygame.image.load(i)
@@ -30,5 +33,5 @@ while True:
     player.animate()
     player.draw()
     pygame.display.update()
-    pygame.display.set_caption('void_knight: ' + list_madness[int(time.time()/5) % len(list_madness)])
+    pygame.display.set_caption('void_knight: ')
     fpsClock.tick(FPS)
