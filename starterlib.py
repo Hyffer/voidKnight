@@ -2,18 +2,16 @@ from typing import List, Any
 
 import pygame, sys, time, random, math
 from pygame.locals import *
-pygame.init()
 
 WIDTH       = 768
 HEIGHT      = 512
 hWIDTH      = WIDTH/2
-hHEIGHT     = HEIGHT/2
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
 RED         = (255, 0, 0)
 
-BASICFONT   = pygame.font.Font('freesansbold.ttf', 32)
+#BASICFONT   = pygame.font.Font('freesansbold.ttf', 32)
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 
@@ -25,9 +23,6 @@ PLAYERSPEED = 10
 
 IDLE        = 0
 MOVING      = 1
-INTERVALIDLE= 0.5
-INTERVALMOVE= 0.1
-TIMENOHURT  = 3
 
 list_madness= []
 list_still = []
@@ -50,7 +45,8 @@ class MovableObj:
     def __init__(self, x, y, vx, vy, ax, ay, facing):
         self.x = x
         self.y = y
-        self.isMoving = 0
+        # state: 0 for idle, 1 for moving
+        self.state = 0
         self.vx = vx
         self.vy = vy
         self.ax = ax
@@ -60,36 +56,24 @@ class MovableObj:
 
 class Player(MovableObj):
     def __init__(self, pic):
-        MovableObj.__init__(self, hWIDTH - 24, HEIGHT - 64 -64, 0, 0, 0, 0, 1)
         self.pic = pic
-        self.picnum= len(pic)
+        self.picnum = len(pic)
         self.picindex = 0
+        self.w, self.h = pic[0][0][0].get_size()
+        MovableObj.__init__(self, hWIDTH - self.w/2, HEIGHT - 64 - self.h, 0, 0, 0, 0, 1)
     def update(self, direction):
-        if direction > 0 and self.x + 48 < WIDTH:
+        if direction > 0 and self.x + self.w < WIDTH:
             self.vx = PLAYERSPEED
-            self.isMoving = 1
+            self.state = 1
             self.facing = 1
         elif direction < 0 and self.x > 0:
             self.vx = -PLAYERSPEED
-            self.isMoving = 1
+            self.state = 1
             self.facing = 0
         else:
             self.vx = 0
-            self.isMoving = 0
+            self.state = 0
         self.x += self.vx
-    def draw(self):
-        if self.facing:
-            mainsurf.blit(self.pic[self.isMoving][int(self.picindex/5)], (self.x, self.y))
-        else:
-            mainsurf.blit(pygame.transform.flip(self.pic[self.isMoving][int(self.picindex/5)], True, False),
-                          (self.x, self.y))
         self.picindex = (self.picindex + 1) % 20
-
-def refreshScreen():
-    mainsurf.fill((0, 0, 0))
-    for i in list_still:
-        i.draw()
-
-def terminate():
-    pygame.quit()
-    sys.exit()
+    def draw(self):
+        mainsurf.blit(self.pic[self.facing][self.state][int(self.picindex/5)], (self.x, self.y))
