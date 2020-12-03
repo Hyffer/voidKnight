@@ -2,42 +2,62 @@ import pygame, sys, math, time
 from pygame.locals import *
 from starterlib import *
 
-stage_sources = [('./resources/graphicals/stage_bottom.png', (WINHALFWIDTH, 0)),
-                 ('./resources/graphicals/stage_top.png', (WINHALFWIDTH, 64 )),
-                 ('./resources/graphicals/stage_left.png', (WINHALFWIDTH - (128 + 16), 64 )),
-                 ('./resources/graphicals/stage_right.png', (WINHALFWIDTH + 128 + 16, 64 ))]
+stage_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
+                 ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
+                 ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
+                 ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64))]
+for i, (x, y) in stage_sources:
+    img = pygame.image.load(i)
+    obj = StillObj(img, x, y)
+    list_still.append(obj)
 
-<<<<<<< Updated upstream
-player_sources = [
-=======
 list_still.append(Platform(0, 200, 200))
+list_still.append(Platform(1, 400, 300))
 
 player_sources_right = [
->>>>>>> Stashed changes
     [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
     pygame.image.load('./resources/graphicals/player_idle_3.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),],
     [pygame.image.load('./resources/graphicals/player_move_1.png'),
     pygame.image.load('./resources/graphicals/player_move_2.png'),
-    pygame.image.load('./resources/graphicals/player_idle_3.png'),
+    pygame.image.load('./resources/graphicals/player_move_3.png'),
     pygame.image.load('./resources/graphicals/player_move_2.png'),],]
 
-for i, (x, y) in stage_sources:
-    img = pygame.image.load(i)
-    nomoveObj = noMove(img, (x, y), True)
-    list_noMove.append(nomoveObj)
+player_sources_left = []
+for i in range(0, len(player_sources_right)):
+    player_sources_left.append([pygame.transform.flip(pic, True, False) for pic in player_sources_right[i]])
+player_sources=[player_sources_left, player_sources_right]
 
-player = player(player_sources, [[pygame.transform.flip(i, True, False) for i in j] for j in player_sources], (100,64))
+player = Player(player_sources)
 
-redraw()
-origsurf = mainsurf.copy()
-while True:
-    playerEventHandle(player)
-
-    mainsurf.blit(origsurf, (0,0))
-    player.animate()
+def refreshScreen():
+    mainsurf.fill((0, 0, 0))
+    for i in list_still:
+        i.draw()
     player.draw()
     pygame.display.update()
-    pygame.display.set_caption('void_knight: ')
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+pygame.init()
+pygame.display.set_caption('voidKnight:')
+refreshScreen()
+direction = 0
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            terminate()
+        if event.type == KEYDOWN:
+            if event.key == K_RIGHT:
+                direction = 1
+            if event.key == K_LEFT:
+                direction = -1
+        elif event.type == KEYUP:
+            direction = 0
+
+    player.update(direction)
+    refreshScreen()
     fpsClock.tick(FPS)
