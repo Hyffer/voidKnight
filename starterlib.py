@@ -3,8 +3,8 @@ from typing import List, Any
 import pygame, sys, time, random, math
 from pygame.locals import *
 
-WIDTH       = 768
-HEIGHT      = 512
+WIDTH       = 1024
+HEIGHT      = 768
 hWIDTH      = WIDTH/2
 
 WHITE       = (255, 255, 255)
@@ -24,10 +24,17 @@ PLAYERSPEED = 10
 IDLE        = 0
 MOVING      = 1
 
+IDLEINTERVAL= 0.8
+MOVEINTERVAL= 0.1
+
 list_madness= []
 list_still = []
 list_player = []
 list_enemy  = []
+
+platform_sources = [pygame.image.load('./resources/graphicals/platform_M.png'),
+                    pygame.image.load('./resources/graphicals/platform_L.png'),
+                    pygame.image.load('./resources/graphicals/platform_XL.png')]
 
 class StillObj:
     def __init__(self, img, x, y):
@@ -40,6 +47,10 @@ class StillObj:
         self.y = HEIGHT - self.y - h
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.y))
+
+class Platform(StillObj):
+    def __init__(self, size, x, y):
+        StillObj.__init__(self, platform_sources[size], x, y)
 
 class MovableObj:
     def __init__(self, x, y, vx, vy, ax, ay, facing):
@@ -59,6 +70,8 @@ class Player(MovableObj):
         self.pic = pic
         self.picnum = len(pic)
         self.picindex = 0
+        self.interval = [IDLEINTERVAL, MOVEINTERVAL]
+        self.lastTime = [0, 0]
         self.w, self.h = pic[0][0][0].get_size()
         MovableObj.__init__(self, hWIDTH - self.w/2, HEIGHT - 64 - self.h, 0, 0, 0, 0, 1)
     def update(self, direction):
@@ -74,6 +87,15 @@ class Player(MovableObj):
             self.vx = 0
             self.state = 0
         self.x += self.vx
-        self.picindex = (self.picindex + 1) % 20
+        t = time.time()
+        piclen = len(self.pic[self.facing][self.state])
+        if(t - self.lastTime[self.state] > self.interval[self.state]):
+            self.picindex = (self.picindex + 1) % piclen
+            self.lastTime[self.state] = t
     def draw(self):
-        mainsurf.blit(self.pic[self.facing][self.state][int(self.picindex/5)], (self.x, self.y))
+        mainsurf.blit(self.pic[self.facing][self.state][self.picindex], (self.x, self.y))
+
+class Enemy(MovableObj):
+    def __init__(self, pic):
+        self.pic = pic
+

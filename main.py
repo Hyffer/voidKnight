@@ -11,6 +11,9 @@ for i, (x, y) in stage_sources:
     obj = StillObj(img, x, y)
     list_still.append(obj)
 
+list_still.append(Platform(0, 200, 200))
+list_still.append(Platform(1, 400, 300))
+
 player_sources_right = [
     [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
@@ -54,7 +57,7 @@ while True:
                 direction = -1
         elif event.type == KEYUP:
             direction = 0
-    
+
     player.update(direction)
     refreshScreen()
     fpsClock.tick(FPS)
