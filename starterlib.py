@@ -87,7 +87,6 @@ class Player(MovableObj):
             self.vx = 0
             self.state = 0
         self.x += self.vx
-
         t = time.time()
         piclen = len(self.pic[self.facing][self.state])
         if(t - self.lastTime[self.state] > self.interval[self.state]):
@@ -99,3 +98,4 @@ class Player(MovableObj):
 class Enemy(MovableObj):
     def __init__(self, pic):
         self.pic = pic
+
