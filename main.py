@@ -7,7 +7,13 @@ stage_sources = [('./resources/graphicals/stage_bottom.png', (WINHALFWIDTH, 0)),
                  ('./resources/graphicals/stage_left.png', (WINHALFWIDTH - (128 + 16), 64 )),
                  ('./resources/graphicals/stage_right.png', (WINHALFWIDTH + 128 + 16, 64 ))]
 
+<<<<<<< Updated upstream
 player_sources = [
+=======
+list_still.append(Platform(0, 200, 200))
+
+player_sources_right = [
+>>>>>>> Stashed changes
     [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
     pygame.image.load('./resources/graphicals/player_idle_3.png'),
