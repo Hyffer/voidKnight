@@ -2,18 +2,6 @@ import pygame, sys, math, time
 from pygame.locals import *
 from starterlib import *
 
-stage_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
-                 ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
-                 ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
-                 ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64))]
-for i, (x, y) in stage_sources:
-    img = pygame.image.load(i)
-    obj = StillObj(img, x, y)
-    list_still.append(obj)
-
-list_still.append(Platform(0, 200, 200))
-list_still.append(Platform(1, 400, 300))
-
 player_sources_right = [
     [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
@@ -33,7 +21,7 @@ player = Player(player_sources)
 
 def refreshScreen():
     mainsurf.fill((0, 0, 0))
-    for i in list_still:
+    for i in list_platform:
         i.draw()
     player.draw()
     pygame.display.update()
@@ -46,18 +34,24 @@ pygame.init()
 pygame.display.set_caption('voidKnight:')
 refreshScreen()
 direction = 0
+jump = 0
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             terminate()
         if event.type == KEYDOWN:
-            if event.key == K_RIGHT:
+            if event.key == K_d:
                 direction = 1
-            if event.key == K_LEFT:
+            if event.key == K_a:
                 direction = -1
+            if event.key == K_SPACE:
+                jump = 1
         elif event.type == KEYUP:
-            direction = 0
+            if event.key == K_d or event.key == K_a:
+                direction = 0
+            if event.key == K_SPACE:
+                jump = 0
 
-    player.update(direction)
+    player.update(direction, jump)
     refreshScreen()
     fpsClock.tick(FPS)
