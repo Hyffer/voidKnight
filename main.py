@@ -30,28 +30,40 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+event_filter = [K_a, K_d]
+event_list = []
+
 pygame.init()
 pygame.display.set_caption('voidKnight:')
 refreshScreen()
 direction = 0
 jump = 0
+kw = 0
 while True:
     for event in pygame.event.get():
-        if event.type == QUIT:
-            terminate()
-        if event.type == KEYDOWN:
-            if event.key == K_d:
-                direction = 1
-            if event.key == K_a:
-                direction = -1
-            if event.key == K_SPACE:
+        if event.type == KEYDOWN and event.key in event_filter:
+            event_list.append(event.key)
+        elif event.type == KEYDOWN:
+            if event.key == K_w and kw == 0:
                 jump = 1
+                kw = 1
+            if event.key == K_s:
+                jump = -1
+        elif event.type == KEYUP and event.key in event_filter:
+            event_list.remove(event.key)
         elif event.type == KEYUP:
-            if event.key == K_d or event.key == K_a:
-                direction = 0
-            if event.key == K_SPACE:
-                jump = 0
+            if event.key == K_w:
+                kw = 0
+        elif event.type == QUIT:
+            terminate()
 
+    event_len = len(event_list)
+    if event_len != 0:
+        direction = event_list[event_len - 1]
+    else:
+        direction = 0
     player.update(direction, jump)
+    jump = 0
+    
     refreshScreen()
     fpsClock.tick(FPS)

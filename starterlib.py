@@ -4,8 +4,9 @@ import pygame, sys, time, random, math
 from pygame.locals import *
 
 WIDTH       = 1024
-HEIGHT      = 768
 hWIDTH      = WIDTH/2
+HEIGHT      = 768
+base        = 64
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
@@ -18,7 +19,8 @@ mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 fpsClock    = pygame.time.Clock()
 FPS         = 30
 
-G           = -10
+G           = -6
+JUMPSPEED   = 50
 PLAYERSPEED = 10
 
 IDLE        = 0
@@ -53,9 +55,11 @@ class Platform(StillObj):
         self.rect_r = x + w
 
 platform_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
-                 ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
-                 ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
-                 ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64))]
+                    ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
+                    ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
+                    ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64)),
+                    ('./resources/graphicals/platform_M.png', (hWIDTH, 500)),
+                    ('./resources/graphicals/platform_L.png', (25, 300))]
 for i, (x, y) in platform_sources:
     img = pygame.image.load(i)
     obj = Platform(img, x, y)
@@ -90,11 +94,11 @@ class Player(MovableObj):
         self.rect_r = self.x + self.w
         
         # moving state update
-        if direction > 0 and self.x + self.w < WIDTH:
+        if direction == K_d and self.x + self.w < WIDTH:
             self.vx = PLAYERSPEED
             self.state = 1
             self.facing = 1
-        elif direction < 0 and self.x > 0:
+        elif direction == K_a and self.x > 0:
             self.vx = -PLAYERSPEED
             self.state = 1
             self.facing = 0
@@ -103,12 +107,17 @@ class Player(MovableObj):
             self.state = 0
         self.x += self.vx
 
-        if  jump == 1 and self.onground == 1:
-            self.vy = 60
+        if jump == 1 and self.leaveground < 2:
+            self.vy = JUMPSPEED
+            self.leaveground += 1
+        if jump == -1 and self.leaveground == 0:
+            self.y -= 2
 
         # falling update
         collideDetect(self)
         self.y += self.vy
+        if self.y < base:
+            self.y = base
         
         # pic update
         t = time.time()
@@ -129,8 +138,7 @@ def collideDetect(movable):
                 movable.vy = 0
                 movable.ay = 0
                 movable.y = i.rect_t
-                movable.onground = 1
+                movable.leaveground = 0
                 return
     movable.ay = G
     movable.vy += movable.ay
-    movable.onground = 0
