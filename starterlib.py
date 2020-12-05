@@ -142,5 +142,4 @@ def collideDetect(movable):
                 return
     movable.ay = G
     movable.vy += movable.ay
-    movable.onground = 0
 
