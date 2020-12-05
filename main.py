@@ -2,18 +2,6 @@ import pygame, sys, math, time
 from pygame.locals import *
 from starterlib import *
 
-stage_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
-                 ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
-                 ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
-                 ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64))]
-for i, (x, y) in stage_sources:
-    img = pygame.image.load(i)
-    obj = StillObj(img, x, y)
-    list_still.append(obj)
-
-list_still.append(Platform(0, 200, 200))
-list_still.append(Platform(1, 400, 300))
-
 player_sources_right = [
     [pygame.image.load('./resources/graphicals/player_idle_1.png'),
     pygame.image.load('./resources/graphicals/player_idle_2.png'),
@@ -33,7 +21,7 @@ player = Player(player_sources)
 
 def refreshScreen():
     mainsurf.fill((0, 0, 0))
-    for i in list_still:
+    for i in list_platform:
         i.draw()
     player.draw()
     pygame.display.update()
@@ -42,22 +30,40 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+event_filter = [K_a, K_d]
+event_list = []
+
 pygame.init()
 pygame.display.set_caption('voidKnight:')
 refreshScreen()
 direction = 0
+jump = 0
+kw = 0
 while True:
     for event in pygame.event.get():
-        if event.type == QUIT:
-            terminate()
-        if event.type == KEYDOWN:
-            if event.key == K_RIGHT:
-                direction = 1
-            if event.key == K_LEFT:
-                direction = -1
+        if event.type == KEYDOWN and event.key in event_filter:
+            event_list.append(event.key)
+        elif event.type == KEYDOWN:
+            if event.key == K_w and kw == 0:
+                jump = 1
+                kw = 1
+            if event.key == K_s:
+                jump = -1
+        elif event.type == KEYUP and event.key in event_filter:
+            event_list.remove(event.key)
         elif event.type == KEYUP:
-            direction = 0
+            if event.key == K_w:
+                kw = 0
+        elif event.type == QUIT:
+            terminate()
 
-    player.update(direction)
+    event_len = len(event_list)
+    if event_len != 0:
+        direction = event_list[event_len - 1]
+    else:
+        direction = 0
+    player.update(direction, jump)
+    jump = 0
+    
     refreshScreen()
     fpsClock.tick(FPS)

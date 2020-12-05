@@ -4,8 +4,9 @@ import pygame, sys, time, random, math
 from pygame.locals import *
 
 WIDTH       = 1024
-HEIGHT      = 768
 hWIDTH      = WIDTH/2
+HEIGHT      = 768
+base        = 64
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
@@ -18,7 +19,8 @@ mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 fpsClock    = pygame.time.Clock()
 FPS         = 30
 
-G           = -10
+G           = -6
+JUMPSPEED   = 50
 PLAYERSPEED = 10
 
 IDLE        = 0
@@ -28,13 +30,9 @@ IDLEINTERVAL= 0.8
 MOVEINTERVAL= 0.1
 
 list_madness= []
-list_still = []
+list_platform= []
 list_player = []
 list_enemy  = []
-
-platform_sources = [pygame.image.load('./resources/graphicals/platform_M.png'),
-                    pygame.image.load('./resources/graphicals/platform_L.png'),
-                    pygame.image.load('./resources/graphicals/platform_XL.png')]
 
 class StillObj:
     def __init__(self, img, x, y):
@@ -49,37 +47,58 @@ class StillObj:
         mainsurf.blit(self.img, (self.x, self.y))
 
 class Platform(StillObj):
-    def __init__(self, size, x, y):
-        StillObj.__init__(self, platform_sources[size], x, y)
+    def __init__(self, img, x, y):
+        StillObj.__init__(self, img, x, y)
+        w, h = img.get_size()
+        self.rect_t = y + h
+        self.rect_l = x
+        self.rect_r = x + w
+
+platform_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
+                    ('./resources/graphicals/stage_top.png', (hWIDTH - 128, 64)),
+                    ('./resources/graphicals/stage_left.png', (hWIDTH - 128 -32, 64)),
+                    ('./resources/graphicals/stage_right.png', (hWIDTH + 128, 64)),
+                    ('./resources/graphicals/platform_M.png', (hWIDTH, 500)),
+                    ('./resources/graphicals/platform_L.png', (25, 300))]
+for i, (x, y) in platform_sources:
+    img = pygame.image.load(i)
+    obj = Platform(img, x, y)
+    list_platform.append(obj)
 
 class MovableObj:
-    def __init__(self, x, y, vx, vy, ax, ay, facing):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
         # state: 0 for idle, 1 for moving
         self.state = 0
-        self.vx = vx
-        self.vy = vy
-        self.ax = ax
-        self.ay = ay
+        self.onground = 1
+        self.vx = 0
+        self.vy = 0
+        self.ax = 0
+        self.ay = 0
         # facing: 0 for left, 1 for right
-        self.facing = facing
+        self.facing = 1
 
 class Player(MovableObj):
     def __init__(self, pic):
         self.pic = pic
-        self.picnum = len(pic)
+        self.piclen = len(pic[0][0])
         self.picindex = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL]
         self.lastTime = [0, 0]
         self.w, self.h = pic[0][0][0].get_size()
-        MovableObj.__init__(self, hWIDTH - self.w/2, HEIGHT - 64 - self.h, 0, 0, 0, 0, 1)
-    def update(self, direction):
-        if direction > 0 and self.x + self.w < WIDTH:
+        MovableObj.__init__(self, hWIDTH - self.w/2, 128)
+    def update(self, direction, jump):
+        # collision box update
+        self.rect_l = self.x
+        self.rect_r = self.x + self.w
+        
+        # moving state update
+        if direction == K_d and self.x + self.w < WIDTH:
             self.vx = PLAYERSPEED
             self.state = 1
             self.facing = 1
-        elif direction < 0 and self.x > 0:
+        elif direction == K_a and self.x > 0:
             self.vx = -PLAYERSPEED
             self.state = 1
             self.facing = 0
@@ -87,22 +106,41 @@ class Player(MovableObj):
             self.vx = 0
             self.state = 0
         self.x += self.vx
-<<<<<<< HEAD
 
-=======
->>>>>>> 39d64e09e837d174bcbda674eb18c983e6bce812
+        if jump == 1 and self.leaveground < 2:
+            self.vy = JUMPSPEED
+            self.leaveground += 1
+        if jump == -1 and self.leaveground == 0:
+            self.y -= 2
+
+        # falling update
+        collideDetect(self)
+        self.y += self.vy
+        if self.y < base:
+            self.y = base
+        
+        # pic update
         t = time.time()
-        piclen = len(self.pic[self.facing][self.state])
         if(t - self.lastTime[self.state] > self.interval[self.state]):
-            self.picindex = (self.picindex + 1) % piclen
+            self.picindex = (self.picindex + 1) % self.piclen
             self.lastTime[self.state] = t
     def draw(self):
-        mainsurf.blit(self.pic[self.facing][self.state][self.picindex], (self.x, self.y))
+        mainsurf.blit(self.pic[self.facing][self.state][self.picindex], (self.x, HEIGHT - self.y - self.h))
 
 class Enemy(MovableObj):
     def __init__(self, pic):
         self.pic = pic
-<<<<<<< HEAD
-=======
 
->>>>>>> 39d64e09e837d174bcbda674eb18c983e6bce812
+def collideDetect(movable):
+    for i in list_platform:
+        if movable.rect_l < i.rect_r and movable.rect_r > i.rect_l:
+            if i.rect_t - 1 <= movable.y and i.rect_t > movable.y + movable.vy - 10:
+                movable.vy = 0
+                movable.ay = 0
+                movable.y = i.rect_t
+                movable.leaveground = 0
+                return
+    movable.ay = G
+    movable.vy += movable.ay
+    movable.onground = 0
+
