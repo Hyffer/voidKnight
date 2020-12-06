@@ -10,7 +10,12 @@ player_sources_right = [
     [pygame.image.load('./resources/graphicals/player_move_1.png'),
     pygame.image.load('./resources/graphicals/player_move_2.png'),
     pygame.image.load('./resources/graphicals/player_move_3.png'),
-    pygame.image.load('./resources/graphicals/player_move_2.png'),],]
+    pygame.image.load('./resources/graphicals/player_move_2.png'),],
+    [pygame.image.load('./resources/graphicals/player_jump_up.png')],
+    [pygame.image.load('./resources/graphicals/player_jump_down.png')],
+    [pygame.image.load('./resources/graphicals/player_attack_1.png'),
+    pygame.image.load('./resources/graphicals/player_attack_2.png')],
+]
 
 player_sources_left = []
 for i in range(0, len(player_sources_right)):
@@ -30,8 +35,7 @@ def terminate():
     pygame.quit()
     sys.exit()
 
-event_filter = [KEYLEFT, KEYRIGHT]
-event_filter = [K_a, K_d, K_s]          #fix
+event_filter = [KEYLEFT, KEYRIGHT, KEYFALL]
 event_list = []
 
 pygame.init()
@@ -54,7 +58,7 @@ while True:
                 else:
                     jump = 1
                 kk = 1
-            if event.key == K_i and ki == 0:
+            if event.key == KEYRUSH and ki == 0:
                 rush = 1
                 ki = 1
         
@@ -63,7 +67,7 @@ while True:
         elif event.type == KEYUP:
             if event.key == K_k:
                 kk = 0
-            if event.key == K_i:
+            if event.key == KEYRUSH:
                 ki = 0
         
         elif event.type == QUIT:

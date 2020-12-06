@@ -25,14 +25,18 @@ PLAYERSPEED = 5
 
 IDLE        = 0
 MOVING      = 1
+JUMPUP      = 2
+JUMPDOWN    = 3
+ATTACK      = 4
 
 IDLEINTERVAL= 0.8
 MOVEINTERVAL= 0.1
 
 KEYLEFT     = K_a
 KEYRIGHT    = K_d
-KEYJUMP     = K_w
+KEYJUMP     = K_k
 KEYFALL     = K_s
+KEYRUSH     = K_l
 KEYATK      = K_j
 
 
@@ -101,11 +105,11 @@ class Player(MovableObj):
         self.rect_r = self.x + self.w
         
         # moving state update
-        if direction == K_d:
+        if direction == KEYRIGHT:
             self.vx = PLAYERSPEED
             self.state = 1
             self.facing = 1
-        elif direction == K_a:
+        elif direction == KEYLEFT:
             self.vx = -PLAYERSPEED
             self.state = 1
             self.facing = 0
