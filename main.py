@@ -30,7 +30,7 @@ def terminate():
     pygame.quit()
     sys.exit()
 
-event_filter = [K_a, K_d]
+event_filter = [KEYLEFT, KEYRIGHT]
 event_list = []
 
 pygame.init()
@@ -39,20 +39,24 @@ refreshScreen()
 direction = 0
 jump = 0
 kw = 0
+attacking = 0
 while True:
-    for event in pygame.event.get():
+    for event in pygame.event.get():            #event control loop
         if event.type == KEYDOWN and event.key in event_filter:
             event_list.append(event.key)
         elif event.type == KEYDOWN:
-            if event.key == K_w and kw == 0:
+            if event.key == KEYJUMP and kw == 0:
                 jump = 1
                 kw = 1
-            if event.key == K_s:
+            if event.key == KEYFALL:
                 jump = -1
+            if event.key == KEYATK:
+                attacking = 1
+
         elif event.type == KEYUP and event.key in event_filter:
             event_list.remove(event.key)
         elif event.type == KEYUP:
-            if event.key == K_w:
+            if event.key == KEYJUMP:
                 kw = 0
         elif event.type == QUIT:
             terminate()

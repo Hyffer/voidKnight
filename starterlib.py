@@ -21,13 +21,20 @@ FPS         = 30
 
 G           = -6
 JUMPSPEED   = 50
-PLAYERSPEED = 10
+PLAYERSPEED = 5
 
 IDLE        = 0
 MOVING      = 1
 
 IDLEINTERVAL= 0.8
 MOVEINTERVAL= 0.1
+
+KEYLEFT     = K_a
+KEYRIGHT    = K_d
+KEYJUMP     = K_w
+KEYFALL     = K_s
+KEYATK      = K_j
+
 
 list_madness= []
 list_platform= []
@@ -82,7 +89,7 @@ class MovableObj:
 class Player(MovableObj):
     def __init__(self, pic):
         self.pic = pic
-        self.piclen = len(pic[0][0])
+        self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
         self.picindex = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL]
         self.lastTime = [0, 0]
@@ -122,7 +129,7 @@ class Player(MovableObj):
         # pic update
         t = time.time()
         if(t - self.lastTime[self.state] > self.interval[self.state]):
-            self.picindex = (self.picindex + 1) % self.piclen
+            self.picindex = (self.picindex + 1) % self.piclen[self.state]
             self.lastTime[self.state] = t
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state][self.picindex], (self.x, HEIGHT - self.y - self.h))
