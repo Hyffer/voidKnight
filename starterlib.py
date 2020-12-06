@@ -95,22 +95,33 @@ class Player(MovableObj):
         self.lastTime = [0, 0]
         self.w, self.h = pic[0][0][0].get_size()
         MovableObj.__init__(self, hWIDTH - self.w/2, 128)
-    def update(self, direction, jump):
+    def update(self, direction, rush, jump):
         # collision box update
         self.rect_l = self.x
         self.rect_r = self.x + self.w
         
         # moving state update
-        if direction == K_d and self.x + self.w < WIDTH:
+        if direction == K_d:
             self.vx = PLAYERSPEED
             self.state = 1
             self.facing = 1
-        elif direction == K_a and self.x > 0:
+        elif direction == K_a:
             self.vx = -PLAYERSPEED
             self.state = 1
             self.facing = 0
         else:
             self.vx = 0
+            self.state = 0
+        if rush == 1:
+            self.vx *= 15
+
+        if self.x + self.vx + self.w > WIDTH:
+            self.vx = 0
+            self.x = WIDTH - self.w
+            self.state = 0
+        elif self.x + self.vx < 0:
+            self.vx = 0
+            self.x = 0
             self.state = 0
         self.x += self.vx
 
