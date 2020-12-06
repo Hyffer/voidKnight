@@ -61,6 +61,8 @@ while True:
             if event.key == KEYRUSH and ki == 0:
                 rush = 1
                 ki = 1
+            if event.key == KEYATTACK and attacking == 0:
+                attacking = 1
         
         elif event.type == KEYUP and event.key in event_filter:
             event_list.remove(event.key)
@@ -78,7 +80,7 @@ while True:
         direction = event_list[event_len - 1]
     else:
         direction = 0
-    player.update(direction, rush, jump)
+    player.update(direction, rush, jump, attacking)
     jump = 0
     rush = 0
     refreshScreen()

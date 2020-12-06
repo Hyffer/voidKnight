@@ -99,7 +99,7 @@ class Player(MovableObj):
         self.lastTime = [0, 0]
         self.w, self.h = pic[0][0][0].get_size()
         MovableObj.__init__(self, hWIDTH - self.w/2, 128)
-    def update(self, direction, rush, jump):
+    def update(self, direction, rush, jump, attack):
         # collision box update
         self.rect_l = self.x
         self.rect_r = self.x + self.w
