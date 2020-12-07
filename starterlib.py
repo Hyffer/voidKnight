@@ -13,8 +13,6 @@ WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
 RED         = (255, 0, 0)
 
-#BASICFONT   = pygame.font.Font('freesansbold.ttf', 32)
-
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 
 fpsClock    = pygame.time.Clock()
@@ -42,7 +40,7 @@ k_down      = K_s
 k_jump      = K_k
 k_rush      = K_l
 k_attack    = K_j
-
+k_pause     = K_p
 
 list_madness= []
 list_platform= []
