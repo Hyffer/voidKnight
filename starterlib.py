@@ -7,6 +7,7 @@ WIDTH       = 1024
 hWIDTH      = WIDTH/2
 HEIGHT      = 768
 base        = 64
+HITBOXW     = 96
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
@@ -28,7 +29,7 @@ MOVING      = 1
 JUMPUP      = 2
 JUMPDOWN    = 3
 ATTACK      = 4
-player_state_ctn = [JUMPUP, JUMPDOWN]
+player_state_ctn = [JUMPUP, JUMPDOWN, ATTACK]
 
 IDLEINTERVAL= 0.8
 MOVEINTERVAL= 0.1
@@ -80,9 +81,14 @@ for i, (x, y) in platform_sources:
     list_platform.append(obj)
 
 class MovableObj:
+    #sets coords only
+    hp = None
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        #caution: set w and h to None
+        self.w = None
+        self.h = None
         # state: 0 for idle, 1 for moving
         self.state = 0
         self.onground = 1
@@ -91,17 +97,27 @@ class MovableObj:
         self.ax = 0
         self.ay = 0
         # facing: 0 for left, 1 for right
-        self.facing = 1
+        self.facing = 0
+        self.attacking = 0
+    def pygamecoord(self):
+        return (self.x, HEIGHT - self.y - self.h)
 
 class Player(MovableObj):
     def __init__(self, pic):
+        MovableObj.__init__(self, hWIDTH, 128)
         self.pic = pic
         self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
         self.picindex = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.lastTime = [0, 0, 0, 0, 0]
         self.w, self.h = pic[0][0][0].get_size()
-        MovableObj.__init__(self, hWIDTH - self.w/2, 128)
+        self.hp = 100
+        #player attack box
+        self.harmbox = None
+        #actual player image box
+        self.realbox = self.pic[0][0][0].get_rect()
+        #player hitbox
+        self.hitbox = self.realbox.inflate(-(self.w - HITBOXW), 0)
     def update(self, direction, rush, jump, attack):
         # collision box update
         self.rect_l = self.x
@@ -145,6 +161,9 @@ class Player(MovableObj):
             self.shiftState(IDLE)
         self.x += self.vx
 
+        #box update
+        self.realbox.midbottom = self.pygamecoord()
+        self.hitbox.midbottom = self.pygamecoord()
         # pic update
         t = time.time()
         if(t - self.lastTime[self.state] > self.interval[self.state]):
@@ -155,6 +174,21 @@ class Player(MovableObj):
         if self.state in player_state_ctn:
             self.state = IDLE
             self.picindex = 0
+    #sets harmbox
+    def attackBegin(self):
+        self.attacking = 1
+        self.damage = 10
+        self.harmbox = Rect(0, 0, self.w/2, self.h/2)
+    def attack(self):
+        if self.facing:
+            self.harmbox.midleft = self.realbox.midleft
+        else:
+            self.harmbox.midright = self.realbox.midright
+    def attackEnd(self):
+        self.attacking = 1
+    def takeDamage(self, damage):
+        self.hp -= damage
+        print('ow: ', self.hp)
     def shiftState(self, state):
         if self.state != state and not self.state in player_state_ctn:
             self.picindex = 0
@@ -184,8 +218,30 @@ player_sources=[player_sources_left, player_sources_right]
 player = Player(player_sources)
 
 class Enemy(MovableObj):
+    id = None
+    #sets pics only
     def __init__(self, pic):
         self.pic = pic
+        self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
+        self.picindex = 0
+        self.w, self.h = pic[0][0][0].get_size()
+    def draw(self):
+        mainsurf.blit(self.pic[self.facing][self.state][self.picindex], (self.x, HEIGHT - self.y - self.h))
+class PainBox(Enemy):
+    def __init__(self, damage, x, y):
+        MovableObj.__init__(self, x, y)
+        Enemy.__init__(self, painbox_sources_right)
+        self.damage = damage
+        self.harmbox = self.pic[0][0][0].get_rect()
+        self.hitbox = Rect(-1,-1,-1,-1)
+        self.attacking = 1
+    def takeDamage(self):
+        pass
+    def update(self):
+        self.harmbox.midbottom = self.pygamecoord()
+
+painbox_sources_right = [[[pygame.image.load('./resources/graphicals/painbox.png')],
+                          [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]]
 
 def collideDetect(movable):
     for i in list_platform:
@@ -203,6 +259,8 @@ def collideDetect(movable):
 def refreshScreen():
     mainsurf.fill((0, 0, 0))
     for i in list_platform:
+        i.draw()
+    for i in list_enemy:
         i.draw()
     player.draw()
     pygame.display.update()
