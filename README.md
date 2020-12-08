@@ -8,4 +8,6 @@ Key K for jump
 
 Key S + K for go down
 
-Key I for rush
+Key L for rush
+
+Key P for start/pause

@@ -1,23 +1,34 @@
 import pygame, sys, math, time
 from pygame.locals import *
-from starterlib import *
+from Player import *
+from Enemy import *
+from Platform import *
+from basis import *
 
 def terminate():
     pygame.quit()
     sys.exit()
 
-def renderText(text):
+def refreshScreen():
+    mainsurf.fill((0, 0, 0))
+    for i in list_platform:
+        i.draw()
+    for i in list_enemy:
+        i.draw()
+    player.draw()
+    pygame.display.update()
+
+def renderText(text, position = (25, 25)):
     textImage = BASICFONT.render(text, True, WHITE)
-    mainsurf.blit(textImage, (25, 25))
+    mainsurf.blit(textImage, position)
     pygame.display.update()
 
 event_filter = [k_left, k_right]
 
-list_enemy.append(PainBox(15, 200, 400))
-
 s_welcome = 0
 s_main = -1
 s_pause = -2
+s_dead = -3
 
 def main():
     event_list = []
@@ -29,15 +40,7 @@ def main():
     kFALL = 0
     switch = 1
     while switch == 1:
-        # enemy loop
-        for enemy in list_enemy:
-            enemy.update()
-            if player.attacking and enemy.hitbox.colliderect(player.harmbox):
-                enemy.takeDamage()
-            if enemy.attacking and player.hitbox.colliderect(enemy.harmbox):
-                player.takeDamage(enemy.damage)
-
-        #player event control loop
+        # player event loop
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key in event_filter:
@@ -78,11 +81,24 @@ def main():
         player.update(direction, rush, jump, attack)
         jump = 0
         rush = 0
+
+        # enemy loop
+        for enemy in list_enemy:
+            #enemy.update()
+            player.takeDamage(enemy.causeDamage(player.box))
+            if player.health <= 0:
+                switch = s_dead
+            #enemy.takeDamage(player.box)
+
+        # refresh screen
         refreshScreen()
+        renderText("HP:" + str(player.health))
         fpsClock.tick(FPS)
+        
     return switch
 
 def welcome():
+    mainsurf.fill((0, 0, 0))
     renderText("WELCOME")
     switch = 1
     while switch == 1:
@@ -95,7 +111,21 @@ def welcome():
     return switch
 
 def pause():
-    renderText("PAUSE")
+    renderText("PAUSE", (WIDTH - 100, 25))
+    switch = 1
+    while switch == 1:
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == k_pause:
+                    switch = s_main
+            elif event.type == QUIT:
+                terminate()
+    return switch
+
+def dead():
+    mainsurf.fill((0, 0, 0))
+    renderText("DEAD")
+    player.rebuild()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
@@ -117,5 +147,7 @@ while True:
         switch = main()
     elif switch == s_pause:
         switch = pause()
+    elif switch == s_dead:
+        switch = dead()
     elif switch == s_welcome:
         switch = welcome()
