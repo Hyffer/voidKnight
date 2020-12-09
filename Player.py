@@ -2,26 +2,26 @@ import pygame, time
 from pygame.locals import *
 from basis import *
 
+initx       = hWIDTH
+inity       = 128
+
 class Player(MovableObj):
-    def __init__(self, pic, initx, inity):
-        MovableObj.__init__(self, pic, initx, inity)
+    def __init__(self, pic):
+        # picture init
+        self.pic = pic
+        self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
+        self.picindex = 0
+        # collision box init
+        w, h = pic[0][0][0].get_size()
+        self.box = Box(w, h)
         self.lastTime = [0, 0, 0, 0, 0]
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
+        self.build()
+    def build(self):
+        # health, movable states and position
         self.health = 500
-    def rebuild(self):
-        self.health = 500
-        self.facing = 0
-        self.attacking = 0
-        self.state = IDLE
-        self.onground = 1
-        self.jumptimes = 0
-        self.vx = 0
-        self.vy = 0
-        self.ax = 0
-        self.ay = 0
-        self.box.x = initx - self.box.w/2
-        self.box.y = inity
-        self.box.boxUpdate()
+        MovableObj.__init__(self)
+        self.box.setPosition(initx, inity)
         
     def update(self, direction, rush, jump, attack):
         # moving state update
@@ -35,7 +35,6 @@ class Player(MovableObj):
             self.shiftState(JUMPDOWN)
 
         collisionDetect(self)
-        self.box.y += self.vy
 
         # x
         if direction == k_right:
@@ -60,10 +59,9 @@ class Player(MovableObj):
             self.vx = 0
             self.box.x = 0
             self.shiftState(IDLE)
-        self.box.x += self.vx
 
         # collision box update
-        self.box.boxUpdate()
+        self.box.moving(self.vx, self.vy)
         
         # pic update
         t = time.time()
@@ -124,4 +122,4 @@ for i in range(0, len(player_sources_right)):
     player_sources_left.append([pygame.transform.flip(pic, True, False) for pic in player_sources_right[i]])
 player_sources=[player_sources_left, player_sources_right]
 
-player = Player(player_sources, initx, inity)
+player = Player(player_sources)

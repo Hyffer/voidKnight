@@ -7,8 +7,6 @@ WIDTH       = 1024
 hWIDTH      = WIDTH/2
 HEIGHT      = 768
 base        = 64
-initx       = hWIDTH
-inity       = 128
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
@@ -50,32 +48,32 @@ list_platform= []
 list_enemy  = []
 
 class Box:
-    def __init__(self, x, y, w, h):
-        self.h = h
+    def __init__(self, w, h):
         self.w = w
-        self.x = x - w/2
+        self.h = h
+    def setPosition(self, centerx, y):
+        self.centerx = centerx
         self.y = y
         self.boxUpdate()
+    def moving(self, vx, vy):
+        self.centerx += vx
+        self.y += vy
+        self.boxUpdate()
     def boxUpdate(self):
-        self.centerx = self.x + self.w/2
+        # compute 'x', 'xr', 'top' using 'centerx' and 'y'
+        self.x = self.centerx - self.w/2
+        self.xr = self.centerx + self.w/2
         self.top = self.y + self.h
-        self.xr = self.x + self.w
         self.coord()
     def coord(self):
         self.drawy = HEIGHT - self.y - self.h
-    def collidebox(self, box2):
+    def isCollideWith(self, box2):
         if box2.top > self.y and box2.y < self.top and box2.xr > self.x and box2.x < self.xr:
             return True
+        return False
 
 class MovableObj():
-    def __init__(self, pic, x, y):
-        # picture manage
-        self.pic = pic
-        self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
-        self.picindex = 0
-        # collision box init
-        w, h = pic[0][0][0].get_size()
-        self.box = Box(x, y, w, h)
+    def __init__(self):
         # facing: 0 for left, 1 for right
         self.facing = 0
         self.attacking = 0

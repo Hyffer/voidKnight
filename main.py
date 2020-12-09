@@ -125,12 +125,12 @@ def pause():
 def dead():
     mainsurf.fill((0, 0, 0))
     renderText("DEAD")
-    player.rebuild()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
+                    player.build()
                     switch = s_main
             elif event.type == QUIT:
                 terminate()
