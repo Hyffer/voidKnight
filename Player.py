@@ -15,10 +15,12 @@ class Player(MovableObj):
         w, h = pic[0][0][0].get_size()
         self.box = Box(w, h)
         self.lastTime = [0, 0, 0, 0, 0]
+        self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.build()
     def build(self):
         # health, movable states and position
+        self.invincible = 0
         self.health = 500
         MovableObj.__init__(self)
         self.box.setPosition(initx, inity)
@@ -33,6 +35,8 @@ class Player(MovableObj):
         if jump == -1 and self.jumptimes == 0 and self.box.y > base:
             self.box.y -= 1
             self.shiftState(JUMPDOWN)
+        if attack == 1:
+            self.shiftState(A)
 
         collisionDetect(self)
 
@@ -68,6 +72,8 @@ class Player(MovableObj):
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
+        if self.invincible and t - self.lastTimeInvincible > INVINCIBILITYTIME:
+            self.invincible = 0
 
     def landing(self):
         if self.onground == 0:
@@ -83,10 +89,14 @@ class Player(MovableObj):
             self.state = state
     
     def draw(self):
-        mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
+        if self.invincible == False or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
+            mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
 
     def takeDamage(self, damage):
-        self.health -= damage
+        if not self.invincible and damage:
+            self.health -= damage
+            player.invincible = 1
+            self.lastTimeInvincible = time.time()
         
 '''
     #sets harmbox

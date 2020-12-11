@@ -18,8 +18,9 @@ def refreshScreen():
     player.draw()
     pygame.display.update()
 
-def renderText(text, position = (25, 25)):
-    textImage = BASICFONT.render(text, True, WHITE)
+def renderText(text,  position = (25, 25), givenFont = None, size = 32):
+    font = pygame.font.Font(givenFont, size)
+    textImage = font.render(text, True, WHITE)
     mainsurf.blit(textImage, position)
     pygame.display.update()
 
@@ -38,6 +39,7 @@ def main():
     kRUSH = 0
     kJUMP = 0
     kFALL = 0
+    kATTACK = 0
     switch = 1
     while switch == 1:
         # player event loop
@@ -54,6 +56,9 @@ def main():
                 elif event.key == k_rush and kRUSH == 0:
                     rush = 1
                     kRUSH = 1
+                elif event.key == k_attack and kATTACK:
+                    attack = 1
+                    kAttack = 1
                 elif event.key == k_down:
                     kFALL = 1
                 # jump out
@@ -139,7 +144,7 @@ def dead():
 pygame.init()
 
 pygame.display.set_caption('voidKnight:')
-BASICFONT = pygame.font.Font(None, 32)
+DEFAULTFONT = None
 
 switch = 0
 while True:

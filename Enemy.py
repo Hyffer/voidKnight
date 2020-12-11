@@ -30,8 +30,30 @@ class PainBox(Enemy):
     def update(self):
         pass
 
+class PainBall(Enemy):
+    def __init__(self, pic, damage, x, y):
+        Enemy.__init__(self, pic, x, y)
+        self.damage = damage
+        self.attacking = 1
+
+    def takeDamage(self):
+        pass
+
+    def causeDamage(self, playerbox):
+        if self.box.isCollideWith(playerbox):
+            return self.damage
+        return 0
+
+
 painbox_sources_left = [[pygame.image.load('./resources/graphicals/painbox.png')],
                         [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 painbox_sources = [painbox_sources_left]
+
+painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/painball.001.png'),
+                            pygame.image.load('./resources/graphicals/painball/painball.002.png'),
+                            pygame.image.load('./resources/graphicals/painball/painball.003.png'),
+                            pygame.image.load('./resources/graphicals/painball/painball.004.png'),
+                            pygame.image.load('./resources/graphicals/painball/painball.005.png'),],]
+painball_sources = [painball_sources_right, [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]]
 
 list_enemy.append(PainBox(painbox_sources, 15, 200, 400))
