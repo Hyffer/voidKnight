@@ -14,6 +14,7 @@ class Player(MovableObj):
         # collision box init
         w, h = pic[0][0][0].get_size()
         self.box = Box(w, h)
+        self.damagebox = Box(0, 0)
         self.lastTime = [0, 0, 0, 0, 0]
         self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
@@ -36,7 +37,16 @@ class Player(MovableObj):
             self.box.y -= 1
             self.shiftState(JUMPDOWN)
         if attack == 1:
-            self.shiftState(A)
+            self.attacking = 1
+            self.shiftState(ATTACK)
+            self.damage = 20
+            self.damagebox = Box(self.box.w / 2, self.box.h)
+            if self.facing == 1:
+                self.damagebox.setPosition(self.box.centerx + self.box.w/4, self.box.y)
+            if self.facing == 0:
+                self.damagebox.setPosition(self.box.centerx - self.box.w / 4, self.box.y)
+            self.picindex = 0
+            self.lastTime[ATTACK[0]] = time.time()
 
         collisionDetect(self)
 
@@ -72,6 +82,9 @@ class Player(MovableObj):
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
+        if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
+            self.shiftState(IDLE, pATTACK)
+            self.attacking =0
         if self.invincible and t - self.lastTimeInvincible > INVINCIBILITYTIME:
             self.invincible = 0
 
@@ -97,7 +110,11 @@ class Player(MovableObj):
             self.health -= damage
             player.invincible = 1
             self.lastTimeInvincible = time.time()
-        
+
+    def causeDamage(self, enemybox):
+        if self.damagebox.isCollideWith(enemybox):
+            return self.damage
+        return 0
 '''
     #sets harmbox
     def attackBegin(self):
@@ -125,7 +142,8 @@ player_sources_right = [
     [pygame.image.load('./resources/graphicals/player_jump_up.png')],
     [pygame.image.load('./resources/graphicals/player_jump_down.png')],
     [pygame.image.load('./resources/graphicals/player_attack_1.png'),
-    pygame.image.load('./resources/graphicals/player_attack_2.png')]]
+    pygame.image.load('./resources/graphicals/player_attack_2.png'),
+     pygame.image.load('./resources/graphicals/player_attack_1.png')]]
 
 player_sources_left = []
 for i in range(0, len(player_sources_right)):

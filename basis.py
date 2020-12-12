@@ -110,3 +110,14 @@ def collisionDetect(movable):
     movable.onground = 0
     movable.ay = G
     movable.vy += movable.ay
+
+def clip (x, upper, lower = None):
+    if upper < 0:
+        raise AttributeError
+    if x>upper:
+        return upper
+    if lower == None:
+        lower = -upper
+    if x < lower:
+        return lower
+    return x
