@@ -100,7 +100,7 @@ def main():
 
         # enemy loop
         for enemy in list_enemy:
-            #enemy.update()
+            enemy.update()
             if player.box.isCollideWith(enemy.damagebox) and enemy.attacking:
                 player.takeDamage(enemy.damage)
             if player.health <= 0:

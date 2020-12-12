@@ -1,5 +1,7 @@
 import pygame, time
 from pygame.locals import *
+
+from Player import player
 from basis import *
 
 class Enemy(MovableObj):
@@ -34,15 +36,16 @@ class PainBox(Enemy):
         pass
 
 class PainBall(Enemy):
-    def __init__(self, pic, damage, x, y):
+    def __init__(self, pic, damage, x, y, maxax = 2, maxvx = 15):
         Enemy.__init__(self, pic, x, y)
-        self.maxax
-        self.maxvx
+        self.maxax = maxax
+        self.maxvx = maxvx
         self.damage = damage
         self.damagebox = Box(self.box.w, self.box.h)
         self.damagebox.setPosition(self.box.centerx, self.box.y)
         self.attacking = 1
-        self.interval = [0.2]
+        self.interval = [0.05]
+        self.lastTime = [0]
 
     def takeDamage(self, damage):
         pass
@@ -78,11 +81,12 @@ painbox_sources_left = [[pygame.image.load('./resources/graphicals/painbox.png')
                         [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 painbox_sources = [painbox_sources_left]
 
-painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/painball.001.png'),
+painball_sources_left = [[pygame.image.load('./resources/graphicals/painball/painball.001.png'),
                             pygame.image.load('./resources/graphicals/painball/painball.002.png'),
                             pygame.image.load('./resources/graphicals/painball/painball.003.png'),
                             pygame.image.load('./resources/graphicals/painball/painball.004.png'),
                             pygame.image.load('./resources/graphicals/painball/painball.005.png'),],]
-painball_sources = [painball_sources_right, [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]]
+painball_sources = [[[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_left], painball_sources_left,]
 
 list_enemy.append(PainBox(painbox_sources, 15, 200, 400))
+list_enemy.append(PainBall(painball_sources, 15, 400, base))
