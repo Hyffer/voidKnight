@@ -18,10 +18,14 @@ def refreshScreen():
     player.draw()
     pygame.display.update()
 
-def renderText(text, position = (25, 25)):
-    textImage = BASICFONT.render(text, True, WHITE)
-    mainsurf.blit(textImage, position)
+def renderText(text,  position = (25, 25), givenFont = None, size = 32):
+    font = pygame.font.Font(givenFont, size)
+    textImage = font.render(text, True, WHITE)
+    textRect = textImage.get_rect()
+    textRect.center = position
+    mainsurf.blit(textImage, textRect)
     pygame.display.update()
+    return textRect
 
 event_filter = [k_left, k_right]
 
@@ -38,8 +42,13 @@ def main():
     kRUSH = 0
     kJUMP = 0
     kFALL = 0
+    kATTACK = 0
     switch = 1
     while switch == 1:
+        #kill
+        if kATTACK == 1:
+            kATTACK = 0
+            attack = 0
         # player event loop
         for event in pygame.event.get():
             if event.type == KEYDOWN:
@@ -54,6 +63,10 @@ def main():
                 elif event.key == k_rush and kRUSH == 0:
                     rush = 1
                     kRUSH = 1
+                #make sure attack animation completes
+                elif event.key == k_attack and kATTACK == 0 and player.attacking == 0:
+                    attack = 1
+                    kATTACK = 1
                 elif event.key == k_down:
                     kFALL = 1
                 # jump out
@@ -69,6 +82,8 @@ def main():
                     kRUSH = 0
                 elif event.key == k_down:
                     kFALL = 0
+                elif event.key == k_attack:
+                    kATTACK = 0
         
             elif event.type == QUIT:
                 terminate()
@@ -82,14 +97,19 @@ def main():
         jump = 0
         rush = 0
 
+
         # enemy loop
         for enemy in list_enemy:
             enemy.update()
-            player.takeDamage(enemy.causeDamage(player.box))
+            if player.box.isCollideWith(enemy.damagebox) and enemy.attacking:
+                player.takeDamage(enemy.damage)
             if player.health <= 0:
                 switch = s_dead
-            #enemy.takeDamage(player.box)
+            if attack and enemy.box.isCollideWith(player.damagebox):
+                enemy.takeDamage(player.damage)
 
+        #end player damage
+        attack = 0
         # refresh screen
         refreshScreen()
         renderText("HP:" + str(player.health))
@@ -100,14 +120,24 @@ def main():
 def welcome():
     mainsurf.fill((0, 0, 0))
     renderText("WELCOME")
+    startrect = renderText("Start Game", position=(hWIDTH, HEIGHT /2), size = 40)
+    quitrect = renderText("Quit", position=(hWIDTH, HEIGHT * 0.75), size = 100)
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
                     switch = s_main
+            elif event.type == MOUSEBUTTONUP:
+                mousex, mousey = event.pos
+                if startrect.collidepoint(mousex, mousey):
+                    switch = s_main
+                if quitrect.collidepoint(mousex, mousey):
+                    terminate()
             elif event.type == QUIT:
                 terminate()
+        pygame.display.update()
+        fpsClock.tick(FPS)
     return switch
 
 def pause():
@@ -130,6 +160,7 @@ def dead():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
+                    # rebuild
                     for e in list_enemy:
                         e.build()
                     player.build()
@@ -141,7 +172,7 @@ def dead():
 pygame.init()
 
 pygame.display.set_caption('voidKnight:')
-BASICFONT = pygame.font.Font(None, 32)
+DEFAULTFONT = None
 
 switch = 0
 while True:
