@@ -1,9 +1,9 @@
 import pygame, sys, math, time
 from pygame.locals import *
+from basis import *
+from Platform import *
 from Player import *
 from Enemy import *
-from Platform import *
-from basis import *
 
 def terminate():
     pygame.quit()
@@ -84,7 +84,7 @@ def main():
 
         # enemy loop
         for enemy in list_enemy:
-            #enemy.update()
+            enemy.update()
             player.takeDamage(enemy.causeDamage(player.box))
             if player.health <= 0:
                 switch = s_dead
@@ -130,6 +130,8 @@ def dead():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
+                    for e in list_enemy:
+                        e.build()
                     player.build()
                     switch = s_main
             elif event.type == QUIT:

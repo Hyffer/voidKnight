@@ -3,7 +3,7 @@ from pygame.locals import *
 from basis import *
 
 initx       = hWIDTH
-inity       = 128
+inity       = 64
 
 class Player(MovableObj):
     def __init__(self, pic):
@@ -26,15 +26,14 @@ class Player(MovableObj):
     def update(self, direction, rush, jump, attack):
         # moving state update
         # y
-        if jump == 1 and self.jumptimes < 2:
-            self.vy = JUMPSPEED
-            self.jumptimes += 1
-            self.shiftState(JUMPUP)
-        if jump == -1 and self.jumptimes == 0 and self.box.y > base:
-            self.box.y -= 1
-            self.shiftState(JUMPDOWN)
+        if jump == 1:
+            self.jump()
+        if jump == -1:
+            self.jumpdown()
 
-        collisionDetect(self)
+        fdreturn = self.fallingDetection()
+        if fdreturn != -1:
+            self.standOn = fdreturn
 
         # x
         if direction == k_right:
@@ -53,11 +52,11 @@ class Player(MovableObj):
 
         if self.box.x + self.vx + self.box.w > WIDTH:
             self.vx = 0
-            self.box.x = WIDTH - self.box.w
+            self.box.centerx = WIDTH - self.box.w/2
             self.shiftState(IDLE)
         elif self.box.x + self.vx < 0:
             self.vx = 0
-            self.box.x = 0
+            self.box.centerx = 0 + self.box.w/2
             self.shiftState(IDLE)
 
         # collision box update
@@ -68,19 +67,6 @@ class Player(MovableObj):
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
-
-    def landing(self):
-        if self.onground == 0:
-            self.onground = 1
-            self.jumptimes = 0
-            self.vy = 0
-            self.ay = 0
-            self.shiftState(IDLE, pJUMP)
-
-    def shiftState(self, state, piority = 10):
-        if state[0] != self.state[0] and (state[1] <= self.state[1] or self.state[1] >= piority):
-            self.picindex = 0
-            self.state = state
     
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
@@ -123,3 +109,4 @@ for i in range(0, len(player_sources_right)):
 player_sources=[player_sources_left, player_sources_right]
 
 player = Player(player_sources)
+list_player.append(player)

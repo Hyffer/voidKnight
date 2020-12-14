@@ -21,6 +21,11 @@ G           = -6
 JUMPSPEED   = 50
 PLAYERSPEED = 10
 
+ENEMYSPEED  = 7
+ENEMYJUMPSPD= 70
+JUMPHEIGHT  = - ENEMYJUMPSPD ** 2 / (G * 2)
+UPTIME      = - ENEMYJUMPSPD / G
+
 pATTACK     = 0
 pJUMP       = 1
 pNOMAL      = 2
@@ -46,6 +51,8 @@ k_pause     = K_p
 
 list_platform= []
 list_enemy  = []
+list_player = []
+playerStandOn = []
 
 class Box:
     def __init__(self, w, h):
@@ -78,12 +85,45 @@ class MovableObj():
         self.facing = 0
         self.attacking = 0
         self.state = IDLE
+        self.standOn = 0
         self.onground = 1
         self.jumptimes = 0
         self.vx = 0
         self.vy = 0
         self.ax = 0
         self.ay = 0
+    def fallingDetection(self):
+        for i in list_platform:
+            if self.box.x < i.rect_r and self.box.xr > i.rect_l:
+                if i.rect_t <= self.box.y and i.rect_t > self.box.y + self.vy + G:
+                    self.box.y = i.rect_t
+                    self.landing()
+                    return i.index
+        self.onground = 0
+        self.ay = G
+        self.vy += self.ay
+        return -1
+    def jump(self):
+        if  self.jumptimes < 2:
+            self.vy = JUMPSPEED
+            self.jumptimes += 1
+            self.shiftState(JUMPUP)
+    def jumpdown(self):
+        if self.onground == 1 and self.box.y > base:
+            self.box.y -= 1
+            self.shiftState(JUMPDOWN)
+    def landing(self):
+        if self.onground == 0:
+            self.onground = 1
+            self.jumptimes = 0
+            self.vy = 0
+            self.ay = 0
+            self.shiftState(IDLE, pJUMP)
+
+    def shiftState(self, state, piority = 10):
+        if state[0] != self.state[0] and (state[1] <= self.state[1] or self.state[1] >= piority):
+            self.picindex = 0
+            self.state = state
 
 class StillObj:
     def __init__(self, img, x, y):
@@ -96,14 +136,3 @@ class StillObj:
         self.drawy = HEIGHT - self.y - h
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
-
-def collisionDetect(movable):
-    for i in list_platform:
-        if movable.box.x < i.rect_r and movable.box.xr > i.rect_l:
-            if i.rect_t <= movable.box.y and i.rect_t > movable.box.y + movable.vy + G:
-                movable.box.y = i.rect_t
-                movable.landing()
-                return
-    movable.onground = 0
-    movable.ay = G
-    movable.vy += movable.ay
