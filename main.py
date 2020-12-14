@@ -36,39 +36,35 @@ s_dead = -3
 
 def main():
     event_list = []
-    rush = 0
     jump = 0
+    rush = 0
     attack = 0
-    kRUSH = 0
     kJUMP = 0
-    kFALL = 0
+    kDOWN = 0
+    kRUSH = 0
     kATTACK = 0
     switch = 1
     while switch == 1:
-        #kill
-        if kATTACK == 1:
-            kATTACK = 0
-            attack = 0
         # player event loop
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key in event_filter:
                     event_list.append(event.key)
                 elif event.key == k_jump and kJUMP == 0:
-                    if kFALL == 1:
+                    if kDOWN == 1:
                         jump = -1
                     else:
                         jump = 1
                     kJUMP = 1
+                elif event.key == k_down:
+                    kFALL = 1
                 elif event.key == k_rush and kRUSH == 0:
                     rush = 1
                     kRUSH = 1
-                #make sure attack animation completes
-                elif event.key == k_attack and kATTACK == 0 and player.attacking == 0:
+                elif event.key == k_attack and kATTACK == 0:
                     attack = 1
                     kATTACK = 1
-                elif event.key == k_down:
-                    kFALL = 1
+
                 # jump out
                 elif event.key == k_pause:
                     switch = s_pause
@@ -78,10 +74,10 @@ def main():
                     event_list.remove(event.key)
                 elif event.key == k_jump:
                     kJUMP = 0
-                elif event.key == k_rush:
-                    kRUSH = 0
                 elif event.key == k_down:
                     kFALL = 0
+                elif event.key == k_rush:
+                    kRUSH = 0
                 elif event.key == k_attack:
                     kATTACK = 0
         
@@ -97,7 +93,6 @@ def main():
         jump = 0
         rush = 0
 
-
         # enemy loop
         for enemy in list_enemy:
             enemy.update()
@@ -108,8 +103,9 @@ def main():
             if attack and enemy.box.isCollideWith(player.damagebox):
                 enemy.takeDamage(player.damage)
 
-        #end player damage
+        # end player damage
         attack = 0
+        
         # refresh screen
         refreshScreen()
         renderText("HP:" + str(player.health))
@@ -120,8 +116,8 @@ def main():
 def welcome():
     mainsurf.fill((0, 0, 0))
     renderText("WELCOME")
-    startrect = renderText("Start Game", position=(hWIDTH, HEIGHT /2), size = 40)
-    quitrect = renderText("Quit", position=(hWIDTH, HEIGHT * 0.75), size = 100)
+    startrect = renderText("Start Game", position=(hWIDTH, HEIGHT /2), size = 100)
+    quitrect = renderText("Quit", position=(hWIDTH, HEIGHT * 0.75), size = 40)
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
