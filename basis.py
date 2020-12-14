@@ -38,11 +38,8 @@ ATTACK      = [4, pATTACK]
 
 IDLEINTERVAL= 0.8
 MOVEINTERVAL= 0.1
-ATTACKINTERVAL = 0.1
+ATTACKINTERVAL = 0.4
 NOINTERVAL  = 0
-INVINCIBILITYINTERVAL = 0.08
-
-INVINCIBILITYTIME = 0.7
 
 k_left      = K_a
 k_right     = K_d
@@ -139,14 +136,3 @@ class StillObj:
         self.drawy = HEIGHT - self.y - h
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
-
-def clip (x, upper, lower = None):
-    if upper < 0:
-        raise AttributeError
-    if x>upper:
-        return upper
-    if lower == None:
-        lower = -upper
-    if x < lower:
-        return lower
-    return x
