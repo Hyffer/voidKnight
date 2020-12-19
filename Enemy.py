@@ -5,6 +5,7 @@ from Player import player
 from basis import *
 
 class Enemy(MovableObj):
+    #init pic, x, y
     def __init__(self, pic, x, y):
         # picture init
         self.pic = pic
@@ -24,6 +25,8 @@ class Enemy(MovableObj):
         pass
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
+        if self.attacking:
+            self.damagebox.show()
 
 class movingEnemy(Enemy):
     def __init__(self, pic, damage, x, y):
@@ -100,7 +103,16 @@ movingenemy_sources_left = [[pygame.image.load('./resources/graphicals/painbox.p
                             [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 movingenemy_sources = [movingenemy_sources_left]
 
-list_enemy.append(movingEnemy(movingenemy_sources, 15, 200, 400))
+
+
+ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_002.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_003.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_004.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_005.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_006.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_007.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
 
 
 class PainBall(movingEnemy):
@@ -134,6 +146,7 @@ class PainBall(movingEnemy):
         self.box.moving(self.vx, self.vy)
         self.damagebox.moving(self.vx, self.vy)
 
+
         t = time.time()
         if (t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
@@ -148,6 +161,7 @@ painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/pa
 painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]
 painball_sources = [painball_sources_left, painball_sources_right]
 
+list_enemy.append(movingEnemy(movingenemy_sources, 15, 200, 400))
 list_enemy.append(PainBall(painball_sources, 15, 0, base))
 
 

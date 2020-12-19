@@ -22,7 +22,7 @@ class Player(MovableObj):
     def build(self):
         # health, movable states and position
         self.invincible = 0
-        self.health = 500
+        self.health = PLAYERHEALTH
         MovableObj.__init__(self)
         self.box.setPosition(initx, inity)
         
@@ -38,11 +38,11 @@ class Player(MovableObj):
             self.attacking = 1
             self.shiftState(ATTACK)
             self.damage = 20
-            self.damagebox = Box(self.box.w / 2, self.box.h)
+            self.damagebox = Box(wDAMAGEBOX, self.box.h)
             if self.facing == 1:
-                self.damagebox.setPosition(self.box.centerx + self.box.w/4, self.box.y)
+                self.damagebox.setPosition(self.box.centerx + self.damagebox.w/2, self.box.y)
             if self.facing == 0:
-                self.damagebox.setPosition(self.box.centerx - self.box.w / 4, self.box.y)
+                self.damagebox.setPosition(self.box.centerx - self.damagebox.w /2, self.box.y)
             self.picindex = 0
             self.lastTime[ATTACK[0]] = time.time()
 
@@ -91,7 +91,11 @@ class Player(MovableObj):
     
     def draw(self):
         if self.invincible == False or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
-            mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
+            img = self.pic[self.facing][self.state[0]][self.picindex]
+            w, h = img.get_size()
+            mainsurf.blit(img, (self.box.centerx - w/2, self.box.drawy))
+        if self.attacking:
+            self.damagebox.show()
 
     def takeDamage(self, damage):
         if not self.invincible and damage:
@@ -119,19 +123,24 @@ class Player(MovableObj):
 '''
 
 player_sources_right = [
-    [pygame.image.load('./resources/graphicals/player_idle_1.png'),
-    pygame.image.load('./resources/graphicals/player_idle_2.png'),
-    pygame.image.load('./resources/graphicals/player_idle_3.png'),
-    pygame.image.load('./resources/graphicals/player_idle_2.png'),],
-    [pygame.image.load('./resources/graphicals/player_move_1.png'),
-    pygame.image.load('./resources/graphicals/player_move_2.png'),
-    pygame.image.load('./resources/graphicals/player_move_3.png'),
-    pygame.image.load('./resources/graphicals/player_move_2.png'),],
-    [pygame.image.load('./resources/graphicals/player_jump_up.png')],
-    [pygame.image.load('./resources/graphicals/player_jump_down.png')],
-    [pygame.image.load('./resources/graphicals/player_attack_1.png'),
-    pygame.image.load('./resources/graphicals/player_attack_2.png'),
-     pygame.image.load('./resources/graphicals/player_attack_1.png')]]
+    [pygame.image.load('./resources/graphicals/player/idle_001.png'),
+    pygame.image.load('./resources/graphicals/player/idle_002.png'),
+    pygame.image.load('./resources/graphicals/player/idle_003.png'),
+    pygame.image.load('./resources/graphicals/player/idle_002.png'),],
+    [pygame.image.load('./resources/graphicals/player/run_000.png'),
+    pygame.image.load('./resources/graphicals/player/run_001.png'),
+    pygame.image.load('./resources/graphicals/player/run_002.png'),
+    pygame.image.load('./resources/graphicals/player/run_003.png'),
+    pygame.image.load('./resources/graphicals/player/run_004.png'),
+    pygame.image.load('./resources/graphicals/player/run_005.png'),],
+    [pygame.image.load('./resources/graphicals/player/jump_003.png')],
+    [pygame.image.load('./resources/graphicals/player/fall_000.png'),
+     pygame.image.load('./resources/graphicals/player/fall_001.png'),],
+    [pygame.image.load('./resources/graphicals/player/attack_002.png'),
+    pygame.image.load('./resources/graphicals/player/attack_003.png'),
+    pygame.image.load('./resources/graphicals/player/attack_004.png'),
+    pygame.image.load('./resources/graphicals/player/attack_005.png'),
+     pygame.image.load('./resources/graphicals/player/attack_000.png'),]]
 
 player_sources_left = []
 for i in range(0, len(player_sources_right)):

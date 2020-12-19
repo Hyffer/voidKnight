@@ -4,6 +4,7 @@ from basis import *
 from Platform import *
 from Player import *
 from Enemy import *
+from Spawner import *
 
 def terminate():
     pygame.quit()
@@ -13,12 +14,23 @@ def refreshScreen():
     mainsurf.fill((0, 0, 0))
     for i in list_platform:
         i.draw()
+    gate.draw()
     for i in list_enemy:
         i.draw()
     player.draw()
+
     pygame.display.update()
 
-def renderText(text,  position = (25, 25), givenFont = None, size = 32):
+def drawHealth():
+    percentage = player.health / PLAYERHEALTH
+    if percentage > 0.8 or int((time.time()*10))%2:
+        healthcolor = WHITE
+    else :
+        healthcolor = RED
+    pygame.draw.rect(mainsurf, healthcolor, (50,50,200*percentage,20))
+    pygame.display.update()
+
+def renderText(text, position = (25, 25), givenFont = None, size = 32):
     font = pygame.font.Font(givenFont, size)
     textImage = font.render(text, True, WHITE)
     textRect = textImage.get_rect()
@@ -61,7 +73,7 @@ def main():
                 elif event.key == k_rush and kRUSH == 0:
                     rush = 1
                     kRUSH = 1
-                elif event.key == k_attack and kATTACK == 0:
+                elif event.key == k_attack and kATTACK == 0 and player.state != ATTACK:
                     attack = 1
                     kATTACK = 1
 
@@ -105,10 +117,12 @@ def main():
 
         # end player damage
         attack = 0
-        
+
+        gate.update()
         # refresh screen
         refreshScreen()
         renderText("HP:" + str(player.health))
+        drawHealth()
         fpsClock.tick(FPS)
         
     return switch
