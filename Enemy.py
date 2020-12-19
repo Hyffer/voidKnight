@@ -3,6 +3,7 @@ from pygame.locals import *
 
 from Player import player
 from basis import *
+from Spawner import *
 
 class Enemy(MovableObj):
     #init pic, x, y
@@ -161,8 +162,9 @@ painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/pa
 painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]
 painball_sources = [painball_sources_left, painball_sources_right]
 
-list_enemy.append(movingEnemy(movingenemy_sources, 15, 200, 400))
-list_enemy.append(PainBall(painball_sources, 15, 0, base))
+#enemySquare = movingEnemy(movingenemy_sources, 15, 200, 400)
+enemyBall = PainBall(painball_sources, 15, 0, base)
+gate.spawn([enemyBall])
 
 
 '''
