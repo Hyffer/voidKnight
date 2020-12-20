@@ -18,11 +18,14 @@ def refreshScreen():
     player.draw()
     pygame.display.update()
 
-def renderText(text,  position = (25, 25), givenFont = None, size = 32):
-    font = pygame.font.Font(givenFont, size)
+def renderText(text, base = 'C', position = (25, 50), font = None, size = 32):
+    font = pygame.font.Font(font, size)
     textImage = font.render(text, True, WHITE)
     textRect = textImage.get_rect()
-    textRect.center = position
+    if base == 'C':
+        textRect.center = position
+    elif base == 'BL':
+        textRect.bottomleft = position
     mainsurf.blit(textImage, textRect)
     pygame.display.update()
     return textRect
@@ -108,14 +111,14 @@ def main():
         
         # refresh screen
         refreshScreen()
-        renderText("HP:" + str(player.health))
+        renderText("HP:" + str(player.health), base = 'BL')
         fpsClock.tick(FPS)
         
     return switch
 
 def welcome():
     mainsurf.fill((0, 0, 0))
-    renderText("WELCOME")
+    renderText("WELCOME", base = 'BL')
     startrect = renderText("Start Game", position=(hWIDTH, HEIGHT /2), size = 100)
     quitrect = renderText("Quit", position=(hWIDTH, HEIGHT * 0.75), size = 40)
     switch = 1
@@ -137,7 +140,7 @@ def welcome():
     return switch
 
 def pause():
-    renderText("PAUSE", (WIDTH - 100, 25))
+    renderText("PAUSE", base = 'BL', position = (WIDTH - 100, 25))
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
@@ -150,7 +153,7 @@ def pause():
 
 def dead():
     mainsurf.fill((0, 0, 0))
-    renderText("DEAD")
+    renderText("DEAD", base = 'BL')
     switch = 1
     while switch == 1:
         for event in pygame.event.get():

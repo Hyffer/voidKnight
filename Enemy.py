@@ -1,79 +1,33 @@
 import pygame, time
 from pygame.locals import *
 
-from Player import player
 from basis import *
+from EnemyVirtualInput import *
 
-class Enemy(MovableObj):
-    def __init__(self, pic, x, y):
+class Enemy(MovableObj, EnemyVI):
+    def __init__(self, pic, damage, x, y):
         # picture init
         self.pic = pic
         self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
         self.picindex = 0
+        self.onground = 1
+        self.attacking = 0
+        self.damage = damage
         # collision box init
         w, h = pic[0][0][0].get_size()
         self.box = Box(w, h)
+        self.damagebox = Box(w, h)
         self.initx = x
         self.inity = y
         self.build()
-        self.damagebox = Box(0, 0)
         MovableObj.__init__(self)
     def build(self):
         self.box.setPosition(self.initx, self.inity)
+        self.damagebox.setPosition(self.initx, self.inity)
     def takeDamage(self, damage):
         pass
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
-
-class movingEnemy(Enemy):
-    def __init__(self, pic, damage, x, y):
-        Enemy.__init__(self, pic, x, y)
-        self.damage = damage
-        self.onground = 1
-        self.damagebox = Box(self.box.w, self.box.h)
-        self.damagebox.setPosition(self.box.centerx, self.box.y)
-        self.attacking = 1
-
-    def track(self):
-        # follow palyer
-        # -1 for left, 1 for right, 0 for stop
-        
-        # at the same stage
-        if self.standOn == list_player[0].standOn:
-            if self.box.x >= list_player[0].box.xr:
-                return -1
-            elif self.box.xr <= list_player[0].box.x:
-                return 1
-            return 0
-        else:
-            goto = list_platform[self.standOn].route[list_player[0].standOn]
-            # overlap
-            if list_platform[self.standOn].rect_l <= list_platform[goto].rect_r and list_platform[self.standOn].rect_r >= list_platform[goto].rect_l:
-                if self.box.centerx < list_platform[goto].rect_l:
-                    return 1
-                elif self.box.centerx > list_platform[goto].rect_r:
-                    return -1
-                else :
-                    if list_platform[self.standOn].rect_t >= list_platform[goto].rect_t:
-                        self.jumpdown()
-                    elif list_platform[self.standOn].rect_t < list_platform[goto].rect_t:
-                        self.jump()
-                    return 0
-            # towards left
-            elif list_platform[self.standOn].rect_l > list_platform[goto].rect_r:
-                if self.box.centerx <= list_platform[self.standOn].rect_l:
-                    self.jump()
-                if self.box.centerx <= list_platform[goto].rect_l:
-                    return 0
-                return 1
-            # towards right
-            elif list_platform[self.standOn].rect_r < list_platform[goto].rect_l:
-                if self.box.centerx >= list_platform[self.standOn].rect_r:
-                    self.jump()
-                if self.box.centerx >= list_platform[goto].rect_l:
-                    return 0
-                return 1
-            return 0
 
     def update(self):
         self.vx = ENEMYSPEED * self.track()
@@ -83,6 +37,9 @@ class movingEnemy(Enemy):
             self.standOn = fdreturn
         
         self.box.moving(self.vx, self.vy)
+        self.damagebox.moving(self.vx, self.vy)
+
+# @Override
     def jump(self):
         if self.onground == 1:
             self.vy = ENEMYJUMPSPD
@@ -100,18 +57,14 @@ movingenemy_sources_left = [[pygame.image.load('./resources/graphicals/painbox.p
                             [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 movingenemy_sources = [movingenemy_sources_left]
 
-list_enemy.append(movingEnemy(movingenemy_sources, 15, 200, 400))
+list_enemy.append(Enemy(movingenemy_sources, 15, 200, 400))
 
 
-class PainBall(movingEnemy):
-    def __init__(self, pic, damage, x, y, maxax = 2, maxvx = 15):
-        Enemy.__init__(self, pic, x, y)
-        self.maxax = maxax
+class PainBall(Enemy):
+    def __init__(self, pic, damage, x, y, _ax = 2, maxvx = 15):
+        Enemy.__init__(self, pic, damage, x, y)
+        self._ax = _ax
         self.maxvx = maxvx
-        self.damage = damage
-        self.damagebox = Box(self.box.w, self.box.h)
-        self.damagebox.setPosition(self.box.centerx, self.box.y)
-        self.attacking = 1
         self.interval = [0.05]
         self.lastTime = [0]
 
@@ -119,13 +72,12 @@ class PainBall(movingEnemy):
         distx = self.track()
         if distx > 0:
             self.facing = 1
-            self.ax = self.maxax
-        if distx <0:
+            self.ax = self._ax
+        elif distx < 0:
             self.facing = 0
-            self.ax = -self.maxax
+            self.ax = -self._ax
 
-        self.vx += self.ax
-        self.vx = clip(self.vx, self.maxvx)
+        self.vx = accelerate(self.vx, self.ax, self.maxvx)
 
         fdreturn = self.fallingDetection()
         if fdreturn != -1:
