@@ -11,6 +11,7 @@ base        = 64
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
 RED         = (255, 0, 0)
+GREEN       = (0, 255, 0)
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 
@@ -20,6 +21,8 @@ FPS         = 30
 G           = -6
 JUMPSPEED   = 50
 PLAYERSPEED = 10
+PLAYERHEALTH= 500
+PLAYERSATTACK=20
 
 ENEMYSPEED  = 7
 ENEMYJUMPSPD= 70
@@ -36,13 +39,16 @@ JUMPUP      = [2, pJUMP]
 JUMPDOWN    = [3, pJUMP]
 ATTACK      = [4, pATTACK]
 
-IDLEINTERVAL= 0.8
-MOVEINTERVAL= 0.1
-ATTACKINTERVAL = 0.1
+IDLEINTERVAL= 0.2
+MOVEINTERVAL= 0.08
+ATTACKINTERVAL = 0.05
 NOINTERVAL  = 0
 INVINCIBILITYINTERVAL = 0.08
 
 INVINCIBILITYTIME = 0.7
+
+wDAMAGEBOX  = 54
+hDAMAGEBOX  = 64
 
 k_left      = K_a
 k_right     = K_d
@@ -81,6 +87,11 @@ class Box:
         if box2.top > self.y and box2.y < self.top and box2.xr > self.x and box2.x < self.xr:
             return True
         return False
+    def show(self, color = RED, alpha = 128):
+        rect = pygame.Surface((self.w, self.h))
+        rect.set_alpha(alpha)
+        rect.fill(color)
+        mainsurf.blit(rect, (self.x, self.drawy))
 
 class MovableObj:
     def __init__(self):
@@ -135,8 +146,8 @@ class StillObj:
         self.y = y
         self.coord()
     def coord(self):
-        w, h = self.img.get_size()
-        self.drawy = HEIGHT - self.y - h
+        self.w, self.h = self.img.get_size()
+        self.drawy = HEIGHT - self.y - self.h
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
 

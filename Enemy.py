@@ -2,6 +2,7 @@ import pygame, time
 from pygame.locals import *
 
 from basis import *
+from Spawner import *
 from EnemyVirtualInput import *
 
 class Enemy(MovableObj, EnemyVI):
@@ -28,6 +29,8 @@ class Enemy(MovableObj, EnemyVI):
         pass
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
+        if self.attacking:
+            self.damagebox.show()
 
     def update(self):
         self.vx = ENEMYSPEED * self.track()
@@ -60,6 +63,16 @@ movingenemy_sources = [movingenemy_sources_left]
 list_enemy.append(Enemy(movingenemy_sources, 15, 200, 400))
 
 
+ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_002.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_003.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_004.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_005.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_006.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_007.png'),
+                      pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
+
+
 class PainBall(Enemy):
     def __init__(self, pic, damage, x, y, _ax = 2, maxvx = 15):
         Enemy.__init__(self, pic, damage, x, y)
@@ -86,6 +99,7 @@ class PainBall(Enemy):
         self.box.moving(self.vx, self.vy)
         self.damagebox.moving(self.vx, self.vy)
 
+
         t = time.time()
         if (t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
@@ -100,7 +114,9 @@ painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/pa
 painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]
 painball_sources = [painball_sources_left, painball_sources_right]
 
-list_enemy.append(PainBall(painball_sources, 15, 0, base))
+#enemySquare = movingEnemy(movingenemy_sources, 15, 200, 400)
+enemyBall = PainBall(painball_sources, 15, 0, base)
+gate.spawn([enemyBall])
 
 
 '''
