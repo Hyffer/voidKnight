@@ -2,8 +2,8 @@ import pygame, time
 from pygame.locals import *
 from basis import *
 
-initx       = hWIDTH
-inity       = 64
+initx       = 200
+inity       = base
 
 class Player(MovableObj):
     def __init__(self, pic):
@@ -14,7 +14,8 @@ class Player(MovableObj):
         # collision box init
         w, h = pic[0][0][0].get_size()
         self.box = Box(w, h)
-        self.damagebox = Box(0, 0)
+        self.damagebox = Box(wDAMAGEBOX, self.box.h)
+        self.damage = 20
         self.lastTime = [0, 0, 0, 0, 0]
         self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
@@ -37,13 +38,7 @@ class Player(MovableObj):
         if attack == 1:
             self.attacking = 1
             self.shiftState(ATTACK)
-            self.damage = 20
-            self.damagebox = Box(wDAMAGEBOX, self.box.h)
-            if self.facing == 1:
-                self.damagebox.setPosition(self.box.centerx + self.damagebox.w/2, self.box.y)
-            if self.facing == 0:
-                self.damagebox.setPosition(self.box.centerx - self.damagebox.w /2, self.box.y)
-            self.picindex = 0
+            self.damagebox.setPosition(self.box.centerx + (self.facing*2-1)*self.damagebox.w/2, self.box.y)
             self.lastTime[ATTACK[0]] = time.time()
 
         fdreturn = self.fallingDetection()
@@ -85,23 +80,21 @@ class Player(MovableObj):
 
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
-            self.attacking =0
+            self.attacking = 0
         if self.invincible and t - self.lastTimeInvincible > INVINCIBILITYTIME:
             self.invincible = 0
     
     def draw(self):
-        self.box.show(GREEN)
-        if self.invincible == False or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
+        #self.box.show(GREEN)
+        if self.invincible == 0 or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
             img = self.pic[self.facing][self.state[0]][self.picindex]
             w, h = img.get_size()
             mainsurf.blit(img, (self.box.centerx - w/2, self.box.drawy))
-        if self.attacking:
-            self.damagebox.show()
 
     def takeDamage(self, damage):
-        if not self.invincible and damage:
+        if not self.invincible:
             self.health -= damage
-            player.invincible = 1
+            self.invincible = 1
             self.lastTimeInvincible = time.time()
 
     def causeDamage(self, enemybox):

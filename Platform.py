@@ -24,10 +24,10 @@ for i, (x, y) in platform_sources:
     index += 1
     list_platform.append(obj)
 
-def deltaxMAX(deltah):
-    return (UPTIME + ((deltah-JUMPHEIGHT)/G)**0.5) * ENEMYSPEED
-
 # create map
+def deltaxMAX(deltah):
+    return (UPTIME + (2*(deltah-JUMPHEIGHT)/G)**0.5) * ENEMYSPEED
+
 for platform in list_platform:
     for obj in list_platform:
         deltah = obj.rect_t - platform.rect_t
