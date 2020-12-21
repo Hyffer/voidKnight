@@ -143,6 +143,11 @@ player_sources_right = [
     pygame.image.load('./resources/graphicals/player/attack_005.png'),
      pygame.image.load('./resources/graphicals/player/attack_000.png'),]]
 
+for i in range(len(player_sources_right)):
+    for j in range(len(player_sources_right[i])):
+        img = player_sources_right[i][j]
+        w,h  = img.get_size()
+        player_sources_right[i][j] = pygame.transform.scale(img, (int(w * 1.35), int(h * 1.35)))
 player_sources_left = []
 for i in range(0, len(player_sources_right)):
     player_sources_left.append([pygame.transform.flip(pic, True, False) for pic in player_sources_right[i]])

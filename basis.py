@@ -47,8 +47,7 @@ INVINCIBILITYINTERVAL = 0.08
 
 INVINCIBILITYTIME = 0.7
 
-wDAMAGEBOX  = 54
-hDAMAGEBOX  = 64
+wDAMAGEBOX  = 80
 
 k_left      = K_a
 k_right     = K_d
