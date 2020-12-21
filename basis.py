@@ -92,7 +92,7 @@ class Box:
         rect.fill(color)
         mainsurf.blit(rect, (self.x, self.drawy))
 
-class MovableObj():
+class MovableObj:
     def __init__(self):
         # facing: 0 for left, 1 for right
         self.facing = 0
@@ -150,13 +150,10 @@ class StillObj:
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
 
-def clip (x, upper, lower = None):
-    if upper < 0:
-        raise AttributeError
-    if x > upper:
-        return upper
-    if lower == None:
-        lower = -upper
-    if x < lower:
-        return lower
-    return x
+def accelerate(v, a, vmax):
+    v += a
+    if v > vmax:
+        return vmax
+    elif v < -vmax:
+        return -vmax
+    return v
