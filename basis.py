@@ -14,6 +14,9 @@ RED         = (255, 0, 0)
 GREEN       = (0, 255, 0)
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
+mistrect    = pygame.Surface((WIDTH, HEIGHT))
+mistrect.set_alpha(100)
+mistrect.fill(WHITE)
 
 fpsClock    = pygame.time.Clock()
 FPS         = 30
@@ -59,6 +62,7 @@ k_attack    = K_j
 k_pause     = K_p
 
 list_platform= []
+type_enemy  = []
 list_enemy  = []
 list_player = []
 playerStandOn = []
@@ -107,6 +111,10 @@ class MovableObj:
         self.ax = 0
         self.ay = 0
     def fallingDetection(self):
+        if self.box.y + self.vy - G <= base:
+            self.box.y = base
+            self.landing()
+            return 0
         for i in list_platform:
             if self.box.x < i.rect_r and self.box.xr > i.rect_l:
                 if i.rect_t <= self.box.y and i.rect_t > self.box.y + self.vy + G:

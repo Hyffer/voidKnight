@@ -6,6 +6,10 @@ from Player import *
 from Enemy import *
 from Spawner import *
 
+rtC     = 0
+rtTL    = 1
+rtTR    = 2
+
 def terminate():
     pygame.quit()
     sys.exit()
@@ -19,35 +23,34 @@ def refreshScreen():
         i.draw()
     player.draw()
 
-    pygame.display.update()
-
 def drawHealth():
     percentage = player.health / PLAYERHEALTH
-    if percentage > 0.8 or int((time.time()*10))%2:
+    if percentage > 0.2 or int((time.time()*10))%2:
         healthcolor = WHITE
     else :
         healthcolor = RED
-    pygame.draw.rect(mainsurf, healthcolor, (50,50,200*percentage,20))
-    pygame.display.update()
+    pygame.draw.rect(mainsurf, healthcolor, (WIDTH-25-200*percentage, 5 , 200*percentage, 20))
 
-def renderText(text, base = 'C', position = (25, 50), font = None, size = 32):
+def renderText(text, base = rtTL, position = (25, 27), font = None, size = 32):
     font = pygame.font.Font(font, size)
     textImage = font.render(text, True, WHITE)
     textRect = textImage.get_rect()
-    if base == 'C':
+    if base == rtC:
         textRect.center = position
-    elif base == 'BL':
-        textRect.bottomleft = position
+    elif base == rtTL:
+        textRect.topleft = position
+    elif base == rtTR:
+        textRect.topright = position
     mainsurf.blit(textImage, textRect)
-    pygame.display.update()
     return textRect
 
 event_filter = [k_left, k_right]
 
-s_welcome = 0
-s_main = -1
-s_pause = -2
-s_dead = -3
+s_welcome   = 0
+s_main      = -1
+s_pause     = -2
+s_win       = -3
+s_dead      = -4
 
 def main():
     event_list = []
@@ -59,6 +62,7 @@ def main():
     kRUSH = 0
     kATTACK = 0
     switch = 1
+    gate.firstSpawn()
     while switch == 1:
         # player event loop
         for event in pygame.event.get():
@@ -72,7 +76,7 @@ def main():
                         jump = 1
                     kJUMP = 1
                 elif event.key == k_down:
-                    kFALL = 1
+                    kDOWN = 1
                 elif event.key == k_rush and kRUSH == 0:
                     rush = 1
                     kRUSH = 1
@@ -90,7 +94,7 @@ def main():
                 elif event.key == k_jump:
                     kJUMP = 0
                 elif event.key == k_down:
-                    kFALL = 0
+                    kDOWN = 0
                 elif event.key == k_rush:
                     kRUSH = 0
                 elif event.key == k_attack:
@@ -111,30 +115,37 @@ def main():
         # enemy loop
         for enemy in list_enemy:
             enemy.update()
-            if player.box.isCollideWith(enemy.damagebox) and enemy.attacking:
+            if enemy.box.isCollideWith(player.box) and enemy.attacking:
                 player.takeDamage(enemy.damage)
             if player.health <= 0:
                 switch = s_dead
             if attack and enemy.box.isCollideWith(player.damagebox):
-                enemy.takeDamage(player.damage)
+                enemy.takeDamage(player.facing, player.damage)
 
-        # end player damage
+        # end player attack
         attack = 0
 
         gate.update()
+
+        if len(list_enemy) == 0:
+            switch = s_win
+        
         # refresh screen
         refreshScreen()
-        renderText("HP:" + str(player.health), base = 'BL')
+        renderText("HP:" + str(player.health), base = rtTR, position = (WIDTH-25, 27))
         drawHealth()
+        pygame.display.update()
+        
         fpsClock.tick(FPS)
         
     return switch
 
 def welcome():
     mainsurf.fill((0, 0, 0))
-    renderText("WELCOME", base = 'BL')
-    startrect = renderText("Start Game", position=(hWIDTH, HEIGHT /2), size = 100)
-    quitrect = renderText("Quit", position=(hWIDTH, HEIGHT * 0.75), size = 40)
+    renderText("WELCOME")
+    startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 100)
+    quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.75), size = 40)
+    pygame.display.update()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
@@ -149,12 +160,14 @@ def welcome():
                     terminate()
             elif event.type == QUIT:
                 terminate()
-        pygame.display.update()
         fpsClock.tick(FPS)
     return switch
 
 def pause():
-    renderText("PAUSE", base = 'BL', position = (WIDTH - 100, 25))
+    # mist
+    mainsurf.blit(mistrect, (0, 0))
+    renderText("PAUSE")
+    pygame.display.update()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
@@ -165,17 +178,31 @@ def pause():
                 terminate()
     return switch
 
-def dead():
+def win():
     mainsurf.fill((0, 0, 0))
-    renderText("DEAD", base = 'BL')
+    renderText("WIN")
+    pygame.display.update()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
-                    # rebuild
-                    for e in list_enemy:
-                        e.build()
+                    player.build()
+                    switch = s_main
+            elif event.type == QUIT:
+                terminate()
+    return switch
+
+def dead():
+    mainsurf.fill((0, 0, 0))
+    renderText("DEAD")
+    pygame.display.update()
+    switch = 1
+    while switch == 1:
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == k_pause:
+                    list_enemy = []
                     player.build()
                     switch = s_main
             elif event.type == QUIT:
@@ -195,5 +222,7 @@ while True:
         switch = pause()
     elif switch == s_dead:
         switch = dead()
+    elif switch == s_win:
+        switch = win()
     elif switch == s_welcome:
         switch = welcome()

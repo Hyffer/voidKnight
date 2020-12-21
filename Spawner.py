@@ -1,34 +1,42 @@
-import pygame, time
+import pygame, time, random
 from pygame.locals import *
-from Player import player
+
 from basis import *
+from Enemy import *
+
+
+def addEnemy(i, x, y):
+    if i == 0:
+        list_enemy.append(PainBall(painball_sources, 80, 15, x, y))
+    elif i == 1:
+        list_enemy.append(Enemy(movingenemy_sources, 140, 15, x, y))
 
 class Spawner(StillObj):
     def __init__(self, pics, x, y):
         StillObj.__init__(self, pics[0], x, y)
         self.centerx = self.x + self.w/2
+        self.y = y
         self.pics = pics
-        self.interval = 1
-        self.buf = 0
+        self.interval = 5
         self.lastTime = 0
         self.index = 0
         self.piclen = len(self.pics)
-        self.enemylist = None
+        self.enemylist = []
         self.event = 0
         # 0 for no animation, 1 for open, -1 for close
         self.state = 0
-    def update(self):
-        if self.state == 0:
-            return
+    def firstSpawn(self):
+        self.spawn()
         t = time.time()
-        tick = (t - self.lastTime) > self.interval
-        if not tick:
+        self.lastTime = t - self.interval + 0.5
+    def update(self):
+        t = time.time()
+        if (t - self.lastTime) <= self.interval:
             return
-        # wait buf
-        if self.buf >0:
-            self.buf -= 1
-            return
-        #gate open
+        else:
+            self.lastTime = t
+            self.spawn()
+        '''# gate open
         if self.state == 1 and self.index < self.piclen:
             self.index +=1
         # gate close
@@ -50,10 +58,9 @@ class Spawner(StillObj):
             self.buf = 2
             self.state = -1
         self.img = self.pics[self.index]
-        self.lastTime = t
-    def spawn(self, enemylist):
-        self.state = 1
-        self.enemylist = enemylist
+        self.lastTime = t'''
+    def spawn(self):
+        addEnemy(random.randint(0, 1), self.centerx, self.y)
 
 gate_resources = [pygame.image.load('./resources/graphicals/spawner_gate/gate_000.png'),
                   pygame.image.load('./resources/graphicals/spawner_gate/gate_001.png')]
