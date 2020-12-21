@@ -60,8 +60,6 @@ movingenemy_sources_left = [[pygame.image.load('./resources/graphicals/painbox.p
                             [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 movingenemy_sources = [movingenemy_sources_left]
 
-list_enemy.append(Enemy(movingenemy_sources, 15, 200, 400))
-
 
 ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.png'),
                       pygame.image.load('./resources/graphicals/ghoul/ghoul_002.png'),
@@ -72,6 +70,45 @@ ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.
                       pygame.image.load('./resources/graphicals/ghoul/ghoul_007.png'),
                       pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
 
+class Ghoul(Enemy):
+    def __init__(self, pic, damage, x, y):
+        Enemy.__init__(self, pic, damage, x, y)
+        self.interval = 0.2
+        self.lastTime = 0
+
+    def update(self):
+        distx = self.track()
+        if distx > 0:
+            self.facing = 1
+        elif distx < 0:
+            self.facing = 0
+
+        self.vx = ENEMYSPEED * self.track()
+
+        fdreturn = self.fallingDetection()
+        if fdreturn != -1:
+            self.standOn = fdreturn
+
+        self.box.moving(self.vx, self.vy)
+        self.damagebox.moving(self.vx, self.vy)
+
+        t = time.time()
+        if t - self.lastTime > self.interval:
+            self.lastTime = t
+            self.picindex = (self.picindex + 1) % self.piclen[0]
+
+ghoul_sources_left = [[
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_001.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_002.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_003.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_004.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_005.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_006.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_007.png'),
+    pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png'),
+]]
+ghoul_sources_right = [[pygame.transform.flip(i, True, False) for i in j] for j in ghoul_sources_left]
+ghoul_sources = [ghoul_sources_left, ghoul_sources_right]
 
 class PainBall(Enemy):
     def __init__(self, pic, damage, x, y, _ax = 2, maxvx = 15):
@@ -116,7 +153,8 @@ painball_sources = [painball_sources_left, painball_sources_right]
 
 #enemySquare = movingEnemy(movingenemy_sources, 15, 200, 400)
 enemyBall = PainBall(painball_sources, 15, 0, base)
-gate.spawn([enemyBall])
+ghoul = Ghoul(ghoul_sources, 25, 0, base)
+gate.spawn([enemyBall, ghoul])
 
 
 '''
