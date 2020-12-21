@@ -24,10 +24,11 @@ for i, (x, y) in platform_sources:
     index += 1
     list_platform.append(obj)
 
-# create map
+# --- track ---
 def deltaxMAX(deltah):
     return (UPTIME + (2*(deltah-JUMPHEIGHT)/G)**0.5) * ENEMYSPEED
 
+# create self.reach
 for platform in list_platform:
     for obj in list_platform:
         deltah = obj.rect_t - platform.rect_t
@@ -39,7 +40,13 @@ for platform in list_platform:
             platform.reach.append(obj.index)
         elif obj.rect_r < platform.rect_l and platform.rect_l - obj.rect_r <= deltaxMAX(deltah):
             platform.reach.append(obj.index)
+    
+# self.route list init
+for platform in list_platform:
+    for obj in list_platform:
+        platform.route.append(-1)
 
+# create self.route
 route = []
 def routing(begin, end):
     route.append(begin)
@@ -52,20 +59,24 @@ def routing(begin, end):
         if routing(nextbegain, end):
             list_platform[begin].route[end] = nextbegain
             return 1
-    
-# route init
-for platform in list_platform:
-    for obj in list_platform:
-        platform.route.append(-1)
 
-# compute route
 for platform in list_platform:
     for obj in list_platform:
         if platform == obj:
             continue
         route = []
         routing(platform.index, obj.index)
-        
+
+# shorten route
+for platform in list_platform:
+    for i in range(0, len(list_platform)):
+        if i == platform.index:
+            continue
+        p = list_platform[platform.route[i]]
+        while p.route[i] >= 0:
+            if p.route[i] in platform.reach:
+                platform.route[i] = p.route[i]
+            p = list_platform[p.route[i]]
 
 if __name__ == '__main__':
     for platform in list_platform:

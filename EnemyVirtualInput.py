@@ -38,7 +38,7 @@ class EnemyVI:
                     self.jump()
                 if self.box.centerx <= list_platform[goto].rect_l:
                     return 0
-                return 1
+                return -1
             # towards right
             elif list_platform[self.standOn].rect_r < list_platform[goto].rect_l:
                 if self.box.centerx >= list_platform[self.standOn].rect_r and needJump(list_platform[self.standOn].rect_r-list_platform[goto].rect_l, list_platform[goto].rect_t-list_platform[self.standOn].rect_t):
