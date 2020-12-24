@@ -5,6 +5,13 @@ from basis import *
 initx       = 200
 inity       = base
 
+
+sounds_footsteps = [pygame.mixer.Sound('./resources/audiables/footstep_concrete_000.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_001.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_002.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_003.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_004.ogg')]
+
 class Player(MovableObj):
     def __init__(self, pic):
         # picture init
@@ -17,6 +24,8 @@ class Player(MovableObj):
         self.damagebox = Box(wDAMAGEBOX, self.box.h)
         self.damage = 20
         self.lastTime = [0, 0, 0, 0, 0]
+        self.lastFootstep = 0
+        self.footstepInterval = 0.3
         self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.build()
@@ -77,7 +86,10 @@ class Player(MovableObj):
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
-
+        
+        if self.state == MOVING and self.onground == 1 and t - self.lastFootstep> self.footstepInterval:
+            random.choice(sounds_footsteps).play()
+            self.lastFootstep = t
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
             self.attacking = 0
@@ -136,6 +148,11 @@ player_sources_right = [
     pygame.image.load('./resources/graphicals/player/attack_005.png'),
      pygame.image.load('./resources/graphicals/player/attack_000.png'),]]
 
+for i in range(len(player_sources_right)):
+    for j in range(len(player_sources_right[i])):
+        img = player_sources_right[i][j]
+        w,h  = img.get_size()
+        player_sources_right[i][j] = pygame.transform.scale(img, (int(w * 1.35), int(h * 1.35)))
 player_sources_left = []
 for i in range(0, len(player_sources_right)):
     player_sources_left.append([pygame.transform.flip(pic, True, False) for pic in player_sources_right[i]])

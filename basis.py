@@ -12,6 +12,8 @@ WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)
 RED         = (255, 0, 0)
 GREEN       = (0, 255, 0)
+FONTTITLE = './resources/fonts/Supernatural_Knight.ttf'
+FONT = './resources/fonts/Trajan.otf'
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 mistrect    = pygame.Surface((WIDTH, HEIGHT))
@@ -44,14 +46,13 @@ ATTACK      = [4, pATTACK]
 
 IDLEINTERVAL= 0.2
 MOVEINTERVAL= 0.08
-ATTACKINTERVAL = 0.05
+ATTACKINTERVAL = 0.02
 NOINTERVAL  = 0
 INVINCIBILITYINTERVAL = 0.08
 
 INVINCIBILITYTIME = 0.7
 
-wDAMAGEBOX  = 54
-hDAMAGEBOX  = 64
+wDAMAGEBOX  = 80
 
 k_left      = K_a
 k_right     = K_d
@@ -66,6 +67,8 @@ type_enemy  = []
 list_enemy  = []
 list_player = []
 playerStandOn = []
+
+score = [0]
 
 class Box:
     def __init__(self, w, h):
@@ -159,8 +162,7 @@ class StillObj:
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
 
-def accelerate(v, a, vmax):
-    v += a
+def accelerate(v, vmax):
     if v > vmax:
         return vmax
     elif v < -vmax:

@@ -1,4 +1,8 @@
 import pygame, sys, math, time
+
+pygame.init()
+pygame.mixer.init()
+
 from pygame.locals import *
 from basis import *
 from Platform import *
@@ -31,7 +35,7 @@ def drawHealth():
         healthcolor = RED
     pygame.draw.rect(mainsurf, healthcolor, (WIDTH-25-200*percentage, 5 , 200*percentage, 20))
 
-def renderText(text, base = rtTL, position = (25, 27), font = None, size = 32):
+def renderText(text, base = rtTL, position = (25, 27), font = FONT, size = 32):
     font = pygame.font.Font(font, size)
     textImage = font.render(text, True, WHITE)
     textRect = textImage.get_rect()
@@ -62,7 +66,6 @@ def main():
     kRUSH = 0
     kATTACK = 0
     switch = 1
-    gate.firstSpawn()
     while switch == 1:
         # player event loop
         for event in pygame.event.get():
@@ -127,13 +130,14 @@ def main():
 
         gate.update()
 
-        if len(list_enemy) == 0:
-            switch = s_win
+        #if len(list_enemy) == 0:
+        #    switch = s_win
         
         # refresh screen
         refreshScreen()
         renderText("HP:" + str(player.health), base = rtTR, position = (WIDTH-25, 27))
         drawHealth()
+        renderText('SLAIN:' + str(score[0]), base = rtTL, position = (15, 50))
         pygame.display.update()
         
         fpsClock.tick(FPS)
@@ -142,8 +146,11 @@ def main():
 
 def welcome():
     mainsurf.fill((0, 0, 0))
-    renderText("WELCOME")
-    startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 100)
+
+    
+
+    renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH, 100), size = 100)
+    startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 40)
     quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.75), size = 40)
     pygame.display.update()
     switch = 1
@@ -209,9 +216,8 @@ def dead():
                 terminate()
     return switch
 
-pygame.init()
-
-pygame.display.set_caption('voidKnight:')
+pygame.display.set_caption('voidKnight')
+pygame.display.set_icon(pygame.image.load('./resources/graphicals/icon/gameicon.png'))
 DEFAULTFONT = None
 
 switch = 0
