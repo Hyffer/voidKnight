@@ -1,6 +1,8 @@
 import pygame
 from pygame.locals import *
+
 from basis import *
+from RandomMap import *
 
 class Platform(StillObj):
     def __init__(self, index, img, x, y):
@@ -13,10 +15,11 @@ class Platform(StillObj):
         self.reach = []
         self.route = []
 
-platform_sources = [('./resources/graphicals/stage_bottom.png', (0, 0)),
-                    ('./resources/graphicals/platform_M.png', (hWIDTH, 500)),
-                    ('./resources/graphicals/platform_L.png', (25, 300)),
-                    ('./resources/graphicals/platform_M.png', (0, 650)),]
+platform_sources = [('./resources/graphicals/stage_bottom.png', (0, 0))]
+
+randomMap()
+platform_sources.extend(added_sources)
+
 index = 0
 for i, (x, y) in platform_sources:
     img = pygame.image.load(i)
