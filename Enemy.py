@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, time, random 
 from pygame.locals import *
 
 from basis import *
@@ -32,6 +32,7 @@ class Enemy(MovableObj, EnemyVI):
         self.health -= damage
         if self.health <= 0:
            list_enemy.remove(self)
+           score[0] += 1
            return
         self.healthbar = pygame.Surface((self.health*0.7, 5))
         # healthbar
@@ -40,21 +41,23 @@ class Enemy(MovableObj, EnemyVI):
         else:
             self.healthbar.fill(GREEN)
         # movement
-        self.box.moving((towards*2-1) * 60, 0)
+        self.box.moving((towards*2-1) * (random.randint(80, 120)), 0)
         self.vx = self.vx*0.4 + (towards*2-1)*self.vx*0.6
         self.vy /= 10
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
         mainsurf.blit(self.healthbar, (self.box.x, self.box.drawy-15))
-
-    def update(self):
-        self.vx = ENEMYSPEED * self.track()
         
-        fdreturn = self.fallingDetection()
-        if fdreturn != -1:
-            self.standOn = fdreturn
-        
-        self.box.moving(self.vx, self.vy)
+#    no use, update written separtately
+    
+#    def update(self):
+#        self.vx = ENEMYSPEED * self.track()
+#        
+#        fdreturn = self.fallingDetection()
+#        if fdreturn != -1:
+#            self.standOn = fdreturn
+#        
+#        self.box.moving(self.vx, self.vy)
 
 # @Override
     def jump(self):
@@ -84,8 +87,8 @@ ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.
                       pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
 
 class Ghoul(Enemy):
-    def __init__(self, pic, damage, x, y):
-        Enemy.__init__(self, pic, damage, x, y)
+    def __init__(self, health = 200, damage = 50, x = 0, y = 0):
+        Enemy.__init__(self, ghoul_sources,health, damage, x, y)
         self.interval = 0.2
         self.lastTime = 0
 
@@ -103,7 +106,7 @@ class Ghoul(Enemy):
             self.standOn = fdreturn
 
         self.box.moving(self.vx, self.vy)
-        self.damagebox.moving(self.vx, self.vy)
+        #self.damagebox.moving(self.vx, self.vy)
 
         t = time.time()
         if t - self.lastTime > self.interval:
@@ -124,10 +127,10 @@ ghoul_sources_right = [[pygame.transform.flip(i, True, False) for i in j] for j 
 ghoul_sources = [ghoul_sources_left, ghoul_sources_right]
 
 class PainBall(Enemy):
-    def __init__(self, pic, health, damage, x, y, _ax = 2, maxvx = 15):
+    def __init__(self, pic, health, damage, x, y, AX = 2, maxvx = 15):
         Enemy.__init__(self, pic, health, damage, x, y)
-        self._ax = _ax
-        self.maxvx = maxvx
+        self.AX = AX
+        self.MAXVX = maxvx
         self.interval = [0.05]
         self.lastTime = [0]
 
@@ -140,7 +143,8 @@ class PainBall(Enemy):
             self.facing = 0
             self.ax = -self._ax
 
-        self.vx = accelerate(self.vx, self.ax, self.maxvx)
+        self.vx += self.ax
+        self.vx = clip(self.vx, self.MAXVX)
 
         fdreturn = self.fallingDetection()
         if fdreturn != -1:
@@ -164,6 +168,9 @@ painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/pa
 painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]
 painball_sources = [painball_sources_left, painball_sources_right]
 
+class monk(Enemy):
+    pass
+    
 #enemySquare = movingEnemy(movingenemy_sources, 15, 200, 400)
 #enemyBall = PainBall(100, painball_sources, 15, 0, base)
 #ghoul = Ghoul(ghoul_sources, 25, 0, base)

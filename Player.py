@@ -5,6 +5,13 @@ from basis import *
 initx       = 200
 inity       = base
 
+
+sounds_footsteps = [pygame.mixer.Sound('./resources/audiables/footstep_concrete_000.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_001.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_002.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_003.ogg'),
+                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_004.ogg')]
+
 class Player(MovableObj):
     def __init__(self, pic):
         # picture init
@@ -17,6 +24,8 @@ class Player(MovableObj):
         self.damagebox = Box(wDAMAGEBOX, self.box.h)
         self.damage = 20
         self.lastTime = [0, 0, 0, 0, 0]
+        self.lastFootstep = 0
+        self.footstepInterval = 0.3
         self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.build()
@@ -77,7 +86,10 @@ class Player(MovableObj):
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
-
+        
+        if self.state == MOVING and self.onground == 1 and t - self.lastFootstep> self.footstepInterval:
+            random.choice(sounds_footsteps).play()
+            self.lastFootstep = t
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
             self.attacking = 0
