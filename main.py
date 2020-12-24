@@ -119,12 +119,12 @@ def main():
         for enemy in list_enemy:
             enemy.update()
             if enemy.box.isCollideWith(player.box) and enemy.attacking:
-                player.takeDamage(enemy.damage)
+                player.takeDamage(enemy.damage, enemy.facing, enemy.knockback + random.randint(-5, 5))
             if player.health <= 0:
                 switch = s_dead
-            if attack and enemy.box.isCollideWith(player.damagebox):
-                enemy.takeDamage(player.facing, player.damage)
-
+            if player.attacking and enemy.box.isCollideWith(player.damagebox):
+                player.health += PLAYERREGEN * enemy.takeDamage(player.facing, player.damage, player.knockback + random.randint(-5, 5))
+        player.health = clip(player.health, PLAYERHEALTH)
         # end player attack
         attack = 0
 
@@ -147,7 +147,7 @@ def main():
 def welcome():
     mainsurf.fill((0, 0, 0))
 
-    
+
 
     renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH, 100), size = 100)
     startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 40)

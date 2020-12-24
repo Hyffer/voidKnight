@@ -5,35 +5,47 @@ from basis import *
 from EnemyVirtualInput import *
 
 class Enemy(MovableObj, EnemyVI):
-    def __init__(self, pic, health, damage, x, y):
+    def __init__(self, pic, health, damage, knockback, mass, x, y, enlarge):
         # picture init
-        self.pic = pic
+        if enlarge == 1:
+            self.pic = pic
+        else:
+            self.pic = [[[pygame.transform.scale(i, (int(i.get_size()[0]*enlarge), int(i.get_size()[1]*enlarge))) for i in j] for j in k] for k in pic]
         self.piclen = [len(pic[0][i]) for i in range(len(pic[0]))]
         self.picindex = 0
         self.onground = 1
         self.HEALTH = health
         self.health = health
         self.damage = damage
+        self.mass = mass
         # collision box init
-        w, h = pic[0][0][0].get_size()
+        w, h = self.pic[0][0][0].get_size()
+        self.invicibility = ATTACKINTERVAL* 4
+        self.lastHit = 0
         self.box = Box(w, h)
         self.damagebox = Box(w, h)
         self.healthbar = pygame.Surface((self.health*0.7, 5))
         self.healthbar.fill(GREEN)
         self.initx = x
         self.inity = y
+        self.knockback = knockback
+        self.knockbackvx = 0
         self.build()
         MovableObj.__init__(self)
         self.attacking = 1
     def build(self):
         self.box.setPosition(self.initx, self.inity)
         #self.damagebox.setPosition(self.initx, self.inity)
-    def takeDamage(self, towards ,damage):
+    def takeDamage(self, towards ,damage, knockback):
+        t = time.time()
+        if t - self.lastHit < self.invicibility:
+            return 0
+        self.lastHit = t
         self.health -= damage
         if self.health <= 0:
-           list_enemy.remove(self)
-           score[0] += 1
-           return
+            list_enemy.remove(self)
+            score[0] += 1
+            return 1
         self.healthbar = pygame.Surface((self.health*0.7, 5))
         # healthbar
         if self.health < self.HEALTH*0.2:
@@ -41,23 +53,14 @@ class Enemy(MovableObj, EnemyVI):
         else:
             self.healthbar.fill(GREEN)
         # movement
+        self.knockbackvx = knockback *  (towards*2 - 1)
         self.box.moving((towards*2-1) * (random.randint(80, 120)), 0)
         self.vx = self.vx*0.4 + (towards*2-1)*self.vx*0.6
-        self.vy /= 10
+        return 1
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
         mainsurf.blit(self.healthbar, (self.box.x, self.box.drawy-15))
-        
-#    no use, update written separtately
-    
-#    def update(self):
-#        self.vx = ENEMYSPEED * self.track()
-#        
-#        fdreturn = self.fallingDetection()
-#        if fdreturn != -1:
-#            self.standOn = fdreturn
-#        
-#        self.box.moving(self.vx, self.vy)
+
 
 # @Override
     def jump(self):
@@ -87,8 +90,10 @@ ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.
                       pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
 
 class Ghoul(Enemy):
-    def __init__(self, health = 200, damage = 50, x = 0, y = 0):
-        Enemy.__init__(self, ghoul_sources,health, damage, x, y)
+    def __init__(self, x, y, health = 200, damage = 50 , maxvx = 7, AX = 1, knockback = 20, mass = 5, enlarge = 1):
+        Enemy.__init__(self, ghoul_sources, health, damage, knockback, mass, x, y, enlarge)
+        self.maxvx = maxvx
+        self.AX = AX
         self.interval = 0.2
         self.lastTime = 0
 
@@ -96,10 +101,16 @@ class Ghoul(Enemy):
         distx = self.track()
         if distx > 0:
             self.facing = 1
+            self.ax = self.AX
         elif distx < 0:
             self.facing = 0
+            self.ax = -self.AX
 
-        self.vx = ENEMYSPEED * self.track()
+        self.vx += self.ax
+        self.vx = clip(self.vx, self.maxvx)
+        if self.knockbackvx != 0:
+            self.vx += self.knockbackvx
+            self.knockbackvx = chip(self.knockbackvx, self.mass)
 
         fdreturn = self.fallingDetection()
         if fdreturn != -1:
@@ -127,10 +138,10 @@ ghoul_sources_right = [[pygame.transform.flip(i, True, False) for i in j] for j 
 ghoul_sources = [ghoul_sources_left, ghoul_sources_right]
 
 class PainBall(Enemy):
-    def __init__(self, pic, health, damage, x, y, AX = 2, maxvx = 15):
-        Enemy.__init__(self, pic, health, damage, x, y)
+    def __init__(self, pic, x, y, health, damage, AX = 2, maxvx = 15, knockback = 50, mass = 1, enlarge = 1):
+        Enemy.__init__(self, pic, health, damage, knockback, mass, x, y, enlarge)
         self.AX = AX
-        self.MAXVX = maxvx
+        self.maxvx = maxvx
         self.interval = [0.05]
         self.lastTime = [0]
 
@@ -138,10 +149,10 @@ class PainBall(Enemy):
         distx = self.track()
         if distx > 0:
             self.facing = 1
-            self.ax = self._ax
+            self.ax = self.AX
         elif distx < 0:
             self.facing = 0
-            self.ax = -self._ax
+            self.ax = -self.AX
 
         self.vx += self.ax
         self.vx = clip(self.vx, self.MAXVX)
@@ -170,8 +181,3 @@ painball_sources = [painball_sources_left, painball_sources_right]
 
 class monk(Enemy):
     pass
-    
-#enemySquare = movingEnemy(movingenemy_sources, 15, 200, 400)
-#enemyBall = PainBall(100, painball_sources, 15, 0, base)
-#ghoul = Ghoul(ghoul_sources, 25, 0, base)
-#gate.spawn([enemyBall, ghoul])

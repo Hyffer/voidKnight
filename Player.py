@@ -23,6 +23,9 @@ class Player(MovableObj):
         self.box = Box(w, h)
         self.damagebox = Box(wDAMAGEBOX, self.box.h)
         self.damage = 20
+        self.mass = PLAYERMASS
+        self.knockback = 20
+        self.knockbackvx = 0
         self.lastTime = [0, 0, 0, 0, 0]
         self.lastFootstep = 0
         self.footstepInterval = 0.3
@@ -67,7 +70,7 @@ class Player(MovableObj):
             self.vx = 0
             self.shiftState(IDLE)
         if rush == 1:
-            self.vx *= 15
+            self.vx *= PLAYERRUSHBONUS
 
         if self.box.x + self.vx + self.box.w > WIDTH:
             self.vx = 0
@@ -78,8 +81,14 @@ class Player(MovableObj):
             self.box.centerx = 0 + self.box.w/2
             self.shiftState(IDLE)
 
+        if self.knockbackvx != 0:
+            self.vx += self.knockbackvx
+            self.knockbackvx = chip(self.knockbackvx, self.mass)
+
         # collision box update
         self.box.moving(self.vx, self.vy)
+        if self.attacking:
+            self.damagebox.moving(self.vx, self.vy)
         
         # pic update
         t = time.time()
@@ -102,31 +111,22 @@ class Player(MovableObj):
             img = self.pic[self.facing][self.state[0]][self.picindex]
             w, h = img.get_size()
             mainsurf.blit(img, (self.box.centerx - w/2, self.box.drawy))
+        self.box.show(GREEN)
+        if self.attacking:
+            self.damagebox.show()
 
-    def takeDamage(self, damage):
+    def takeDamage(self, damage, towards, knockback):
         if not self.invincible:
             self.health -= damage
             self.invincible = 1
             self.lastTimeInvincible = time.time()
+            self.knockbackvx = (towards * 2 - 1)* knockback
+            self.vy = 10
 
     def causeDamage(self, enemybox):
         if self.damagebox.isCollideWith(enemybox):
             return self.damage
         return 0
-'''
-    #sets harmbox
-    def attackBegin(self):
-        self.attacking = 1
-        self.damage = 10
-        self.harmbox = Rect(0, 0, self.w/2, self.h/2)
-    def attack(self):
-        if self.facing:
-            self.harmbox.midleft = self.realbox.midleft
-        else:
-            self.harmbox.midright = self.realbox.midright
-    def attackEnd(self):
-        self.attacking = 1
-'''
 
 player_sources_right = [
     [pygame.image.load('./resources/graphicals/player/idle_001.png'),

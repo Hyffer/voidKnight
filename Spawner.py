@@ -37,18 +37,8 @@ class Spawner(StillObj):
         # 0 for no animation, 1 for open, -1 for close
         self.state = sIDLE
         self.lock = 0
-    def firstSpawn(self):
-        return
-        self.spawn()
-        t = time.time()
-        self.lastTime = t - self.interval + 0.5
     def update(self):
         t = time.time()
-#        tick = (t - self.lastTime) > self.interval
-#        if not tick:
-#            return
-#        # wait buf
-#
 
         if (t - self.lastTime) <= self.interval:
             return
@@ -57,20 +47,6 @@ class Spawner(StillObj):
             if self.buf:
                 self.buf -=1
                 return
-
-#        # gate open
-#        if self.state == sOPEN and self.index < self.piclen:
-#            self.index += 1
-#        # gate close
-#        if self.state == sCLOSE and self.index >= 0:
-#            self.index -= 1
-#            if self.index ==0:
-#                self.state = 0
-#        # wait till spawn
-#        if self.index == self.piclen - 1 and self.spawning == 0:
-#            self.buf = 2
-#            self.spawning = True
-#
         # spawn and wait
         if self.spawning == sSPAWNING:
             for enemy in self.enemylist:
@@ -97,14 +73,8 @@ class Spawner(StillObj):
         self.checkSpawn()
         self.img = self.pics[self.index]
 
-#    def spawn(self, enemylist):
-#        self.buf = 2
-#        self.state = 1
-#        self.enemylist = enemylist
-    def spawn(self):
-        addEnemy(random.randint(0, 1), self.centerx, self.y)
     def getEnemy(self):
-        return Ghoul(100, 50, self.centerx, self.y)
+        return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 50, enlarge = 1.5)
     def checkSpawn(self):
         if self.lock:
             return
