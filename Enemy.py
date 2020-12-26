@@ -80,15 +80,6 @@ movingenemy_sources_left = [[pygame.image.load('./resources/graphicals/painbox.p
                             [pygame.image.load('./resources/graphicals/painbox_hurt.png')]]
 movingenemy_sources = [movingenemy_sources_left]
 
-ghoul_sorces_left = [[pygame.image.load('./resources/graphicals/ghoul/ghoul_001.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_002.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_003.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_004.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_005.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_006.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_007.png'),
-                      pygame.image.load('./resources/graphicals/ghoul/ghoul_008.png')]]
-
 class Ghoul(Enemy):
     def __init__(self, x, y, health = 200, damage = 50 , maxvx = 7, AX = 1, knockback = 20, mass = 5, enlarge = 1):
         Enemy.__init__(self, ghoul_sources, health, damage, knockback, mass, x, y, enlarge)
@@ -138,8 +129,8 @@ ghoul_sources_right = [[pygame.transform.flip(i, True, False) for i in j] for j 
 ghoul_sources = [ghoul_sources_left, ghoul_sources_right]
 
 class PainBall(Enemy):
-    def __init__(self, pic, x, y, health, damage, AX = 2, maxvx = 15, knockback = 50, mass = 1, enlarge = 1):
-        Enemy.__init__(self, pic, health, damage, knockback, mass, x, y, enlarge)
+    def __init__(self, x, y, health, damage, AX = 2, maxvx = 15, knockback = 10, mass = 7, enlarge = 1):
+        Enemy.__init__(self, painball_sources, health, damage, knockback, mass, x, y, enlarge)
         self.AX = AX
         self.maxvx = maxvx
         self.interval = [0.05]
@@ -155,7 +146,10 @@ class PainBall(Enemy):
             self.ax = -self.AX
 
         self.vx += self.ax
-        self.vx = clip(self.vx, self.MAXVX)
+        self.vx = clip(self.vx, self.maxvx)
+        if self.knockbackvx != 0:
+            self.vx += self.knockbackvx
+            self.knockbackvx = chip(self.knockbackvx, self.mass)
 
         fdreturn = self.fallingDetection()
         if fdreturn != -1:
