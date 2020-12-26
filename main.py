@@ -5,7 +5,7 @@ pygame.mixer.init()
 
 from pygame.locals import *
 from basis import *
-from Platform import *
+from RandomMap import *
 from Player import *
 from Enemy import *
 from Spawner import *
@@ -55,6 +55,11 @@ s_main      = -1
 s_pause     = -2
 s_win       = -3
 s_dead      = -4
+
+def restart():
+    resetList()
+    randomMap()
+    player.build()
 
 def main():
     event_list = []
@@ -146,9 +151,6 @@ def main():
 
 def welcome():
     mainsurf.fill((0, 0, 0))
-
-    
-
     renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH, 100), size = 100)
     startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 40)
     quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.75), size = 40)
@@ -194,7 +196,7 @@ def win():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
-                    player.build()
+                    restart()
                     switch = s_main
             elif event.type == QUIT:
                 terminate()
@@ -209,8 +211,7 @@ def dead():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
-                    list_enemy = []
-                    player.build()
+                    restart()
                     switch = s_main
             elif event.type == QUIT:
                 terminate()
@@ -219,6 +220,10 @@ def dead():
 pygame.display.set_caption('voidKnight')
 pygame.display.set_icon(pygame.image.load('./resources/graphicals/icon/gameicon.png'))
 DEFAULTFONT = None
+
+player = Player()
+list_player.append(player)
+randomMap()
 
 switch = 0
 while True:

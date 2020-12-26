@@ -63,10 +63,14 @@ k_attack    = K_j
 k_pause     = K_p
 
 list_platform= []
-type_enemy  = []
 list_enemy  = []
 list_player = []
 playerStandOn = []
+def resetList():
+    while len(list_platform) != 0:
+        list_platform.pop()
+    while len(list_enemy) != 0:
+        list_enemy.pop()
 
 score = [0]
 
