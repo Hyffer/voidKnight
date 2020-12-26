@@ -26,8 +26,11 @@ FPS         = 30
 G           = -6
 JUMPSPEED   = 50
 PLAYERSPEED = 10
+PLAYERRUSHBONUS= 20
 PLAYERHEALTH= 500
 PLAYERSATTACK=20
+PLAYERREGEN = 5
+PLAYERMASS  = 5
 
 ENEMYSPEED  = 7
 ENEMYJUMPSPD= 70
@@ -52,7 +55,7 @@ INVINCIBILITYINTERVAL = 0.08
 
 INVINCIBILITYTIME = 0.7
 
-wDAMAGEBOX  = 80
+wDAMAGEBOX  = 96
 
 k_left      = K_a
 k_right     = K_d
@@ -121,11 +124,15 @@ class MovableObj:
         if self.box.y + self.vy - G <= base:
             self.box.y = base
             self.landing()
+            if self.attacking:
+                self.damagebox.y = base
             return 0
         for i in list_platform:
             if self.box.x < i.rect_r and self.box.xr > i.rect_l:
                 if i.rect_t <= self.box.y and i.rect_t > self.box.y + self.vy + G:
                     self.box.y = i.rect_t
+                    if self.attacking:
+                        self.damagebox.y = i.rect_t
                     self.landing()
                     return i.index
         self.onground = 0
@@ -166,9 +173,23 @@ class StillObj:
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
 
-def accelerate(v, vmax):
+def clip(v, vmax):
     if v > vmax:
         return vmax
     elif v < -vmax:
         return -vmax
     return v
+def chip(n, val):
+    if n == 0:
+        return 0
+    if n > 0:
+        if n < val:
+            return 0
+        else :
+            return n - val
+    else:
+        if n > -val:
+            return 0
+        else :
+            return n+ val
+    pass
