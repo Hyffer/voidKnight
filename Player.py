@@ -1,16 +1,11 @@
-import pygame, time
+import pygame, time, random
 from pygame.locals import *
 from basis import *
+from Sounds import *
 
 initx       = 200
 inity       = base
 
-
-sounds_footsteps = [pygame.mixer.Sound('./resources/audiables/footstep_concrete_000.ogg'),
-                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_001.ogg'),
-                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_002.ogg'),
-                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_003.ogg'),
-                  pygame.mixer.Sound('./resources/audiables/footstep_concrete_004.ogg')]
 
 class Player(MovableObj):
     def __init__(self, pic):
@@ -29,6 +24,7 @@ class Player(MovableObj):
         self.lastTime = [0, 0, 0, 0, 0]
         self.lastFootstep = 0
         self.footstepInterval = 0.3
+        self.firstLand = 0
         self.lastTimeInvincible = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.build()
@@ -44,10 +40,12 @@ class Player(MovableObj):
         # y
         if jump == 1:
             self.jump()
+            sounds_jump.play()
         if jump == -1:
             self.jumpdown()
 
         if attack == 1:
+            random.choice(sounds_attack).play()
             self.attacking = 1
             self.shiftState(ATTACK)
             self.damagebox.setPosition(self.box.centerx + (self.facing*2-1)*self.damagebox.w/2, self.box.y)
@@ -71,6 +69,7 @@ class Player(MovableObj):
             self.shiftState(IDLE)
         if rush == 1:
             self.vx *= PLAYERRUSHBONUS
+            sounds_jump.play()
 
         if self.box.x + self.vx + self.box.w > WIDTH:
             self.vx = 0
@@ -99,6 +98,11 @@ class Player(MovableObj):
         if self.state == MOVING and self.onground == 1 and t - self.lastFootstep> self.footstepInterval:
             random.choice(sounds_footsteps).play()
             self.lastFootstep = t
+        if self.onground == 1 and self.firstLand == 1:
+            self.firstLand = 0
+            random.choice(sounds_land).play()
+        if self.onground == 0 and self.firstLand == 0:
+            self.firstLand = 1
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
             self.attacking = 0
@@ -121,7 +125,8 @@ class Player(MovableObj):
             self.invincible = 1
             self.lastTimeInvincible = time.time()
             self.knockbackvx = (towards * 2 - 1)* knockback
-            self.vy = 10
+            self.vy = knockback /2
+            random.choice(sounds_player_pain).play()
 
     def causeDamage(self, enemybox):
         if self.damagebox.isCollideWith(enemybox):

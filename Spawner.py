@@ -74,7 +74,9 @@ class Spawner(StillObj):
         self.img = self.pics[self.index]
 
     def getEnemy(self):
-        return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 50, enlarge = 1.5)
+        return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 25, enlarge = 1.5)
+        #if score[0] < 40:
+        #    return PainBall(self.centerx + random.randint(-3, 3) * 10, self.y, 500, 100, enlarge = 5, mass = 0.5)
     def checkSpawn(self):
         if self.lock:
             return

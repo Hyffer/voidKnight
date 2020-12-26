@@ -3,6 +3,7 @@ from pygame.locals import *
 
 from basis import *
 from EnemyVirtualInput import *
+from Sounds import *
 
 class Enemy(MovableObj, EnemyVI):
     def __init__(self, pic, health, damage, knockback, mass, x, y, enlarge):
@@ -44,8 +45,10 @@ class Enemy(MovableObj, EnemyVI):
         self.health -= damage
         if self.health <= 0:
             list_enemy.remove(self)
+            random.choice(sounds_monsterdeath).play()
             score[0] += 1
             return 1
+        random.choice(sounds_hit).play()
         self.healthbar = pygame.Surface((self.health*0.7, 5))
         # healthbar
         if self.health < self.HEALTH*0.2:
@@ -54,8 +57,9 @@ class Enemy(MovableObj, EnemyVI):
             self.healthbar.fill(GREEN)
         # movement
         self.knockbackvx = knockback *  (towards*2 - 1)
-        self.box.moving((towards*2-1) * (random.randint(80, 120)), 0)
-        self.vx = self.vx*0.4 + (towards*2-1)*self.vx*0.6
+        #self.box.moving((towards*2-1) * (random.randint(80, 120)), 0)
+        #self.vx = self.vx*0.4 + (towards*2-1)*self.vx*0.6
+        self.vy = knockback /2
         return 1
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
@@ -138,8 +142,8 @@ ghoul_sources_right = [[pygame.transform.flip(i, True, False) for i in j] for j 
 ghoul_sources = [ghoul_sources_left, ghoul_sources_right]
 
 class PainBall(Enemy):
-    def __init__(self, pic, x, y, health, damage, AX = 2, maxvx = 15, knockback = 50, mass = 1, enlarge = 1):
-        Enemy.__init__(self, pic, health, damage, knockback, mass, x, y, enlarge)
+    def __init__(self, x, y, health, damage, AX = 2, maxvx = 15, knockback = 50, mass = 1, enlarge = 1):
+        Enemy.__init__(self, painball_sources, health, damage, knockback, mass, x, y, enlarge)
         self.AX = AX
         self.maxvx = maxvx
         self.interval = [0.05]
@@ -155,7 +159,7 @@ class PainBall(Enemy):
             self.ax = -self.AX
 
         self.vx += self.ax
-        self.vx = clip(self.vx, self.MAXVX)
+        self.vx = clip(self.vx, self.maxvx)
 
         fdreturn = self.fallingDetection()
         if fdreturn != -1:
