@@ -6,7 +6,7 @@ from pygame.locals import *
 WIDTH       = 1024
 hWIDTH      = WIDTH/2
 HEIGHT      = 768
-base        = 64
+base        = 32
 
 WHITE       = (255, 255, 255)
 BLACK       = (0, 0, 0)

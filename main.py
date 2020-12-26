@@ -60,6 +60,7 @@ def restart():
     resetList()
     randomMap()
     player.build()
+    score[0] = 0
 
 def main():
     event_list = []
@@ -97,7 +98,7 @@ def main():
                     switch = s_pause
         
             elif event.type == KEYUP:
-                if event.key in event_filter:
+                if event.key in event_filter and event.key in event_list:
                     event_list.remove(event.key)
                 elif event.key == k_jump:
                     kJUMP = 0
