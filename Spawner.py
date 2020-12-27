@@ -15,12 +15,11 @@ sNOSPAWN    = 0
 sSPAWNING   = 1
 sSPAWNED    = 2
 
-PAUSEPREOPEN        = 2
-PAUSEPRESPAWN       = 1
-INTERVALSPAWN       = 1
-PAUSEPOSTSPAWN      = 1
-PAUSEBETWEENSPAWN   = 20
-PAUSEBETWEENSPAWN_ENDLESS= 5
+PAUSEPREOPEN        = 8
+PAUSEPRESPAWN       = 5
+PAUSEPOSTSPAWN      = 6
+PAUSEBETWEENSPAWN   = 85
+PAUSEBETWEENSPAWN_ENDLESS= 15
 
 class Spawner(StillObj):
     def __init__(self, pics, x, y):
@@ -32,7 +31,7 @@ class Spawner(StillObj):
         self.piclen = len(self.pics)
         self.enemylist = []
         # time and event control
-        self.interval = 0.5
+        self.interval = 0.1
         self.lastTime = 0
         self.buf = 0
         # 0 for no spawn, 1 for spawning, 2 for spawned

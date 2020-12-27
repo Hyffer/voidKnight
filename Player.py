@@ -5,6 +5,7 @@ from Sounds import *
 
 initx       = 200
 inity       = base
+disabilitytime = 0.5
 
 ICONSIZE = 32
 ICONOFFSET = 4
@@ -77,6 +78,7 @@ class Player(MovableObj):
         self.footstepInterval = 0.3
         self.firstLand = 0
         self.lastRush = 0
+        self.lastAttack = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.lastTimeInvincible = 0
         self.build()
@@ -88,6 +90,7 @@ class Player(MovableObj):
         self.box.setPosition(initx, inity)
         
     def update(self, direction, rush, jump, attack):
+        t = time.time()
         # moving state update
         # y
         if jump == 1:
@@ -95,7 +98,8 @@ class Player(MovableObj):
         if jump == -1:
             self.jumpdown()
 
-        if attack == 1:
+        if attack == 1 and t - self.lastAttack > disabilitytime:
+            self.lastAttack = t
             random.choice(sounds_attack).play()
             self.attacking = 1
             self.shiftState(ATTACK)
@@ -121,11 +125,7 @@ class Player(MovableObj):
         else:
             self.vx = 0
             self.shiftState(IDLE)
-        if rush == 1:
-            self.vx *= PLAYERRUSHBONUS
-            sounds_jump.play()
-            self.lastRush = time.time()
-
+        
         if self.box.x + self.vx + self.box.w > WIDTH:
             self.vx = 0
             self.box.centerx = WIDTH - self.box.w/2
@@ -134,6 +134,11 @@ class Player(MovableObj):
             self.vx = 0
             self.box.centerx = 0 + self.box.w/2
             self.shiftState(IDLE)
+
+        if rush == 1 and self.vx != 0:
+            self.vx *= PLAYERRUSHBONUS
+            sounds_jump.play()
+            self.lastRush = time.time()
 
         if self.knockbackvx != 0:
             self.vx += self.knockbackvx
@@ -145,7 +150,6 @@ class Player(MovableObj):
             self.damagebox.moving(self.vx, self.vy)
         
         # pic update
-        t = time.time()
         if(t - self.lastTime[self.state[0]] > self.interval[self.state[0]]):
             self.picindex = (self.picindex + 1) % self.piclen[self.state[0]]
             self.lastTime[self.state[0]] = t
@@ -167,6 +171,7 @@ class Player(MovableObj):
             self.invincible = 0
     
     def draw(self):
+        t = time.time()
         if self.invincible == 0 or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
             img = self.pic[self.facing][self.state[0]][self.picindex]
             w, h = img.get_size()
@@ -176,8 +181,9 @@ class Player(MovableObj):
         if self.attacking and DEBUG:
             self.damagebox.show()
         # player status ui
-        mainsurf.blit(attack_icon, (self.box.centerx - attack_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))
-        if time.time() - self.lastRush < RUSHATTACKTIME:
+        if t - self.lastAttack >= disabilitytime:
+            mainsurf.blit(attack_icon, (self.box.centerx - attack_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))
+        if t - self.lastRush < RUSHATTACKTIME:
             mainsurf.blit(bonus_icon,(self.box.centerx - bonus_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*2 - ICONOFFSET * 2))
         if self.health / PLAYERHEALTH <= 0.2 and (int(time.time() * 10)) % 2:
             mainsurf.blit(dying_icon, (self.box.centerx - dying_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*3 - ICONOFFSET * 3))
