@@ -2,6 +2,7 @@ import pygame, sys, math, time
 
 pygame.init()
 pygame.mixer.init()
+music = pygame.mixer.music
 
 from pygame.locals import *
 from basis import *
@@ -13,6 +14,11 @@ from Spawner import *
 rtC     = 0
 rtTL    = 1
 rtTR    = 2
+
+MAINMUSIC = './resources/audiables/bg_music/bonebottom.mp3'
+BATTLEMUSIC = './resources/audiables/bg_music/eternity.mp3'
+NORMALVOLUME= 0.7
+PAUSEVOLUME = 0.1
 
 def terminate():
     pygame.quit()
@@ -145,7 +151,10 @@ def main():
         drawHealth()
         renderText('SLAIN:' + str(score[0]), base = rtTL, position = (15, 50))
         pygame.display.update()
-        
+
+        # repeat music
+
+
         fpsClock.tick(FPS)
         
     return switch
@@ -161,10 +170,17 @@ def welcome():
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
+                    music.load(BATTLEMUSIC)
+                    music.set_volume(0.7)
+                    music.play(-1)
                     switch = s_main
             elif event.type == MOUSEBUTTONUP:
                 mousex, mousey = event.pos
+                sounds_click.play()
                 if startrect.collidepoint(mousex, mousey):
+                    music.load(BATTLEMUSIC)
+                    music.set_volume(NORMALVOLUME)
+                    music.play(-1)
                     switch = s_main
                 if quitrect.collidepoint(mousex, mousey):
                     terminate()
@@ -175,14 +191,20 @@ def welcome():
 
 def pause():
     # mist
+    sounds_click.play()
     mainsurf.blit(mistrect, (0, 0))
-    renderText("PAUSE")
+    pauserect = renderText("PAUSED",base = rtC , position=(hWIDTH, HEIGHT/2), size = 80)
+    mainsurf.blit(pause_icon, (pauserect.left - 100, pauserect.centery-50))
+
+    music.set_volume(PAUSEVOLUME)
     pygame.display.update()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
+                    sounds_click.play()
+                    music.set_volume(NORMALVOLUME)
                     switch = s_main
             elif event.type == QUIT:
                 terminate()
@@ -218,6 +240,9 @@ def dead():
                 terminate()
     return switch
 
+# load minor resources
+pause_icon = pygame.image.load('./resources/graphicals/icon/pause.png')
+
 pygame.display.set_caption('voidKnight')
 pygame.display.set_icon(pygame.image.load('./resources/graphicals/icon/gameicon.png'))
 DEFAULTFONT = None
@@ -237,4 +262,7 @@ while True:
     elif switch == s_win:
         switch = win()
     elif switch == s_welcome:
+        music.load(MAINMUSIC)
+        music.play(-1)
+        music.set_volume(1.0)
         switch = welcome()

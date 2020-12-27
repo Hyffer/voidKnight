@@ -1,4 +1,4 @@
-import pygame, time, random
+import pygame, time, random, math
 from pygame.locals import *
 
 from basis import *
@@ -73,11 +73,14 @@ class Spawner(StillObj):
         self.img = self.pics[self.index]
 
     def getEnemy(self):
-        r = random.randint(0, 1)
+        r = random.randint(0, 2)
+        largeratio = math.log2(score[0])/20 + 1 if score[0] else 1
         if r == 0:
-            return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 50, enlarge = 1.5)
+            return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 50, enlarge = largeratio + 0.5)
         elif r == 1:
-            return PainBall(self.centerx + random.randint(-3, 3) * 10, self.y, 60, 70)
+            return PainBall(self.centerx + random.randint(-3, 3) * 10, self.y, 60, 70, enlarge = largeratio)
+        elif r == 2:
+            return Monk(self.centerx + random.randint(-3, 3) * 10, self.y, enlarge = largeratio + 1)
     def checkSpawn(self):
         if self.lock:
             return
