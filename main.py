@@ -149,7 +149,7 @@ def main():
         refreshScreen()
         renderText("HP:" + str(player.health), base = rtTR, position = (WIDTH-25, 27))
         drawHealth()
-        renderText('SLAIN:' + str(score[0]), base = rtTL, position = (15, 50))
+        renderText('SLAIN:' + str(score[0]), base = rtTL, position = (15, 27))
         pygame.display.update()
 
         # repeat music

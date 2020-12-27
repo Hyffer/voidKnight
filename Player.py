@@ -172,8 +172,9 @@ class Player(MovableObj):
             img = self.pic[self.facing][self.state[0]][self.picindex]
             w, h = img.get_size()
             mainsurf.blit(img, (self.box.centerx - w/2, self.box.drawy))
-        self.box.show(GREEN)
-        if self.attacking:
+        if DEBUG:
+            self.box.show(GREEN)
+        if self.attacking and DEBUG:
             self.damagebox.show()
         # player status ui
         mainsurf.blit(attack_icon, (self.box.centerx - attack_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))

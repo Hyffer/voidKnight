@@ -4,6 +4,8 @@ import pygame, sys, time, random, math
 from pygame.locals import *
 from Sounds import *
 
+DEBUG = False
+
 WIDTH       = 1024
 hWIDTH      = WIDTH/2
 HEIGHT      = 768
