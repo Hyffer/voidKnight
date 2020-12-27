@@ -2,6 +2,7 @@ from typing import List, Any
 
 import pygame, sys, time, random, math
 from pygame.locals import *
+from Sounds import *
 
 WIDTH       = 1024
 hWIDTH      = WIDTH/2
@@ -68,6 +69,7 @@ k_jump      = K_k
 k_rush      = K_l
 k_attack    = K_j
 k_pause     = K_p
+k_quit      = K_ESCAPE
 
 list_platform= []
 list_enemy  = []
@@ -147,6 +149,7 @@ class MovableObj:
         if  self.jumptimes < 2:
             self.vy = JUMPSPEED
             self.jumptimes += 1
+            sounds_jump.play()
             self.shiftState(JUMPUP)
     def jumpdown(self):
         if self.onground == 1 and self.box.y > base:

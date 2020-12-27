@@ -22,6 +22,8 @@ sounds_player_pain = [pygame.mixer.Sound('./resources/audiables/pain1.mp3'),
 
 sounds_monsterpain = pygame.mixer.Sound('./resources/audiables/monsterpain.mp3')
 
+#ksounds_painballpain = pygame.mixer.Sound('./resources/audiables/')
+
 sounds_monsterdeath = [pygame.mixer.Sound('./resources/audiables/monsterdeath1.mp3'),
                        pygame.mixer.Sound('./resources/audiables/monsterdeath2.mp3')]
 

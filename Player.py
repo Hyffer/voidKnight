@@ -7,9 +7,9 @@ initx       = 200
 inity       = base
 
 ICONSIZE = 32
-ICONOFFSET = 16
+ICONOFFSET = 4
 
-bonus_icon = pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/warning_alt.png'), (ICONSIZE, ICONSIZE))
+bonus_icon = pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/bonus.png'), (ICONSIZE , ICONSIZE))
 dying_icon = pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/power.png'), (ICONSIZE, ICONSIZE))
 powerup_icon=pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/arrowUp.png'), (ICONSIZE, ICONSIZE))
 attack_icon =pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/attack_power.png'), (ICONSIZE, ICONSIZE))
@@ -92,7 +92,6 @@ class Player(MovableObj):
         # y
         if jump == 1:
             self.jump()
-            sounds_jump.play()
         if jump == -1:
             self.jumpdown()
 
@@ -176,10 +175,12 @@ class Player(MovableObj):
         self.box.show(GREEN)
         if self.attacking:
             self.damagebox.show()
+        # player status ui
+        mainsurf.blit(attack_icon, (self.box.centerx - attack_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))
         if time.time() - self.lastRush < RUSHATTACKTIME:
-            mainsurf.blit(bonus_icon,(self.box.centerx - bonus_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET * 2))
+            mainsurf.blit(bonus_icon,(self.box.centerx - bonus_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*2 - ICONOFFSET * 2))
         if self.health / PLAYERHEALTH <= 0.2 and (int(time.time() * 10)) % 2:
-            mainsurf.blit(dying_icon, (self.box.centerx - dying_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*2 - ICONOFFSET * 3))
+            mainsurf.blit(dying_icon, (self.box.centerx - dying_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*3 - ICONOFFSET * 3))
 
     def takeDamage(self, damage, towards, knockback):
         if not self.invincible:

@@ -161,7 +161,8 @@ def main():
 
 def welcome():
     mainsurf.fill((0, 0, 0))
-    renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH, 100), size = 100)
+    mainsurf.blit(mask_icon, (hWIDTH - 64, 20))
+    renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH , 200), size = 80)
     startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 40)
     quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.75), size = 40)
     pygame.display.update()
@@ -206,6 +207,9 @@ def pause():
                     sounds_click.play()
                     music.set_volume(NORMALVOLUME)
                     switch = s_main
+                if event.key == k_quit:
+                    sounds_click.play()
+                    switch = s_welcome
             elif event.type == QUIT:
                 terminate()
     return switch
@@ -226,6 +230,7 @@ def win():
     return switch
 
 def dead():
+    music.stop()
     mainsurf.fill((0, 0, 0))
     renderText("DEAD")
     pygame.display.update()
@@ -235,13 +240,14 @@ def dead():
             if event.type == KEYDOWN:
                 if event.key == k_pause:
                     restart()
-                    switch = s_main
+                    switch = s_welcome
             elif event.type == QUIT:
                 terminate()
     return switch
 
 # load minor resources
-pause_icon = pygame.image.load('./resources/graphicals/icon/pause.png')
+mask_icon   = pygame.image.load('./resources/graphicals/icon/mask.png')
+pause_icon  = pygame.image.load('./resources/graphicals/icon/pause.png')
 
 pygame.display.set_caption('voidKnight')
 pygame.display.set_icon(pygame.image.load('./resources/graphicals/icon/gameicon.png'))

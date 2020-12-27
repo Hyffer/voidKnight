@@ -63,7 +63,7 @@ sources = [('./resources/graphicals/platform_M.png', 200),
 
 def randomMap():
     platform_sources = [('./resources/graphicals/stage_bottom.png', (0, 0))]
-    h = random.randint(245, 300)
+    h = random.randint(220, 275)
     while h + 130 < HEIGHT:
         pic, wth = random.choice(sources)
         x = random.randint(0, WIDTH - wth)
