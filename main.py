@@ -69,6 +69,7 @@ def restart():
     randomMap()
     player.build()
     score[0] = 0
+    score[1] = 0
 
 def main(mode):
     event_list = []

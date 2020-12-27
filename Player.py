@@ -5,7 +5,7 @@ from Sounds import *
 
 initx       = 200
 inity       = base
-disabilitytime = 0.5
+disabilitytime = 0.7
 
 ICONSIZE = 32
 ICONOFFSET = 4
