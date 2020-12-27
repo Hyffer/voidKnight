@@ -68,6 +68,11 @@ class Spawner(StillObj):
         # gate open
         if self.state == sOPEN and self.index < self.piclen-1:
             self.index += 1
+        #check for spawn
+        if mode == m_challenge:
+            self.checkSpawn()
+        elif mode == m_endless:
+            self.checkSpawn_endless()
         # gate close
         if self.state == sCLOSE and self.index > 0:
             self.index -= 1
@@ -78,11 +83,6 @@ class Spawner(StillObj):
                 elif mode == m_endless:
                     self.buf = PAUSEBETWEENSPAWN_ENDLESS
                 self.lock = False
-        
-        if mode == m_challenge:
-            self.checkSpawn()
-        elif mode == m_endless:
-            self.checkSpawn_endless()
         
         self.img = self.pics[self.index]
 
