@@ -4,6 +4,9 @@ from pygame.locals import *
 from basis import *
 from Enemy import *
 
+m_challenge = 0
+m_endless   = 1
+
 MAXENEMYNUM = 5
 sIDLE       = 0
 sOPEN       = 1
@@ -16,7 +19,8 @@ PAUSEPREOPEN        = 2
 PAUSEPRESPAWN       = 1
 INTERVALSPAWN       = 1
 PAUSEPOSTSPAWN      = 1
-PAUSEBETWEENSPAWN   = 5
+PAUSEBETWEENSPAWN   = 20
+PAUSEBETWEENSPAWN_ENDLESS= 5
 
 class Spawner(StillObj):
     def __init__(self, pics, x, y):
@@ -36,9 +40,9 @@ class Spawner(StillObj):
         # 0 for no animation, 1 for open, -1 for close
         self.state = sIDLE
         self.lock = 0
-    def update(self):
-        t = time.time()
 
+    def update(self, mode):
+        t = time.time()
         if (t - self.lastTime) <= self.interval:
             return
         else:
@@ -54,6 +58,8 @@ class Spawner(StillObj):
             self.spawning = sSPAWNED
             self.buf = PAUSEPOSTSPAWN
             self.state = sCLOSE
+            if mode == m_challenge:
+                score[1] += 1
             return
         # wait till spawn
         if self.index == self.piclen - 1 and self.spawning == sNOSPAWN:
@@ -67,14 +73,22 @@ class Spawner(StillObj):
             self.index -= 1
             if self.index == 0:
                 self.state = sIDLE
-                self.buf = PAUSEBETWEENSPAWN
+                if mode == m_challenge:
+                    self.buf = PAUSEBETWEENSPAWN
+                elif mode == m_endless:
+                    self.buf = PAUSEBETWEENSPAWN_ENDLESS
                 self.lock = False
-        self.checkSpawn()
+        
+        if mode == m_challenge:
+            self.checkSpawn()
+        elif mode == m_endless:
+            self.checkSpawn_endless()
+        
         self.img = self.pics[self.index]
 
-    def getEnemy(self):
+    def getEnemy(self, ratiolock = 0):
         r = random.randint(0, 2)
-        largeratio = math.log2(score[0])/20 + 1 if score[0] else 1
+        largeratio = math.log2(score[0])/20 + 1 if (score[0] and not ratiolock) else 1
         if r == 0:
             return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, 100, 50, enlarge = largeratio + 0.5)
         elif r == 1:
@@ -82,6 +96,18 @@ class Spawner(StillObj):
         elif r == 2:
             return Monk(self.centerx + random.randint(-3, 3) * 10, self.y, enlarge = largeratio + 1)
     def checkSpawn(self):
+        if self.lock:
+            return
+        spawnnum = random.randint(3, MAXENEMYNUM)
+        if spawnnum:
+            self.lock = True
+            for i in range(spawnnum):
+                self.enemylist.append(self.getEnemy(1))
+            self.state = sOPEN
+            self.spawning = sNOSPAWN
+            self.buf = PAUSEPREOPEN
+            return
+    def checkSpawn_endless(self):
         if self.lock:
             return
         spawnnum = random.randint(0, MAXENEMYNUM - len(list_enemy))

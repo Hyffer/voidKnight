@@ -61,6 +61,8 @@ s_main      = -1
 s_pause     = -2
 s_win       = -3
 s_dead      = -4
+m_challenge = 0
+m_endless   = 1
 
 def restart():
     resetList()
@@ -68,7 +70,7 @@ def restart():
     player.build()
     score[0] = 0
 
-def main():
+def main(mode):
     event_list = []
     jump = 0
     rush = 0
@@ -140,16 +142,18 @@ def main():
         # end player attack
         attack = 0
 
-        gate.update()
-
-        #if len(list_enemy) == 0:
-        #    switch = s_win
+        gate.update(mode)
         
         # refresh screen
         refreshScreen()
         renderText("HP:" + str(player.health), base = rtTR, position = (WIDTH-25, 27))
         drawHealth()
-        renderText('SLAIN:' + str(score[0]), base = rtTL, position = (15, 27))
+        if mode == m_challenge:
+            renderText('WAVE:' + str(score[1]))
+            if len(list_enemy) == 0 and score[1]:
+                switch = s_win
+        if mode == m_endless:
+            renderText('SLAIN:' + str(score[0]))
         pygame.display.update()
 
         # repeat music
@@ -163,19 +167,14 @@ def welcome():
     mainsurf.fill((0, 0, 0))
     mainsurf.blit(mask_icon, (hWIDTH - 64, 20))
     renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH , 200), size = 80)
-    startrect = renderText("Start Game", base = rtC, position=(hWIDTH, HEIGHT /2), size = 40)
-    quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.75), size = 40)
+    startrect = renderText("Challenge Mode", base = rtC, position=(hWIDTH, HEIGHT * 0.49), size = 40)
+    start_endlessrect = renderText("Endless Mode", base = rtC, position=(hWIDTH, HEIGHT * 0.62), size = 40)
+    quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.81), size = 40)
     pygame.display.update()
     switch = 1
     while switch == 1:
         for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                if event.key == k_pause:
-                    music.load(BATTLEMUSIC)
-                    music.set_volume(0.7)
-                    music.play(-1)
-                    switch = s_main
-            elif event.type == MOUSEBUTTONUP:
+            if event.type == MOUSEBUTTONUP:
                 mousex, mousey = event.pos
                 sounds_click.play()
                 if startrect.collidepoint(mousex, mousey):
@@ -183,12 +182,19 @@ def welcome():
                     music.set_volume(NORMALVOLUME)
                     music.play(-1)
                     switch = s_main
+                    mode = m_challenge
+                if start_endlessrect.collidepoint(mousex, mousey):
+                    music.load(BATTLEMUSIC)
+                    music.set_volume(NORMALVOLUME)
+                    music.play(-1)
+                    switch = s_main
+                    mode = m_endless
                 if quitrect.collidepoint(mousex, mousey):
                     terminate()
             elif event.type == QUIT:
                 terminate()
         fpsClock.tick(FPS)
-    return switch
+    return switch, mode
 
 def pause():
     # mist
@@ -207,8 +213,9 @@ def pause():
                     sounds_click.play()
                     music.set_volume(NORMALVOLUME)
                     switch = s_main
-                if event.key == k_quit:
+                if event.key == k_esc:
                     sounds_click.play()
+                    restart()
                     switch = s_welcome
             elif event.type == QUIT:
                 terminate()
@@ -222,9 +229,10 @@ def win():
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
-                if event.key == k_pause:
+                if event.key == k_esc:
+                    sounds_click.play()
                     restart()
-                    switch = s_main
+                    switch = s_welcome
             elif event.type == QUIT:
                 terminate()
     return switch
@@ -238,7 +246,8 @@ def dead():
     while switch == 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
-                if event.key == k_pause:
+                if event.key == k_esc:
+                    sounds_click.play()
                     restart()
                     switch = s_welcome
             elif event.type == QUIT:
@@ -258,9 +267,10 @@ list_player.append(player)
 randomMap()
 
 switch = 0
+mode = 0
 while True:
     if switch == s_main:
-        switch = main()
+        switch = main(mode)
     elif switch == s_pause:
         switch = pause()
     elif switch == s_dead:
@@ -271,4 +281,4 @@ while True:
         music.load(MAINMUSIC)
         music.play(-1)
         music.set_volume(1.0)
-        switch = welcome()
+        switch, mode = welcome()

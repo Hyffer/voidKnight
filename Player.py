@@ -167,7 +167,6 @@ class Player(MovableObj):
             self.invincible = 0
     
     def draw(self):
-        #self.box.show(GREEN)
         if self.invincible == 0 or int(((time.time() - self.lastTimeInvincible)/INVINCIBILITYINTERVAL))%2:
             img = self.pic[self.facing][self.state[0]][self.picindex]
             w, h = img.get_size()

@@ -71,7 +71,7 @@ k_jump      = K_k
 k_rush      = K_l
 k_attack    = K_j
 k_pause     = K_p
-k_quit      = K_ESCAPE
+k_esc       = K_ESCAPE
 
 list_platform= []
 list_enemy  = []
@@ -83,7 +83,7 @@ def resetList():
     while len(list_enemy) != 0:
         list_enemy.pop()
 
-score = [0]
+score = [0, 0]
 
 class Box:
     def __init__(self, w, h):
