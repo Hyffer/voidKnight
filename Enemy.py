@@ -59,7 +59,7 @@ class Enemy(MovableObj, EnemyVI):
         self.knockbackvx = knockback *  (towards*2 - 1)
         #self.box.moving((towards*2-1) * (random.randint(80, 120)), 0)
         #self.vx = self.vx*0.4 + (towards*2-1)*self.vx*0.6
-        self.vy = knockback /2
+        self.vy = knockback / self.mass *2
         return 1
     def draw(self):
         mainsurf.blit(self.pic[self.facing][self.state[0]][self.picindex], (self.box.x, self.box.drawy))
@@ -177,5 +177,48 @@ painball_sources_right = [[pygame.image.load('./resources/graphicals/painball/pa
 painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in painball_sources_right]
 painball_sources = [painball_sources_left, painball_sources_right]
 
-class monk(Enemy):
-    pass
+class Monk(Enemy):
+    def __init__(self, x, y, health=200, damage=50, maxvx=7, AX=1, knockback=20, mass=5, enlarge=1):
+        Enemy.__init__(self, monk_sources, health, damage, knockback, mass, x, y, enlarge)
+        self.maxvx = maxvx
+        self.AX = AX
+        self.interval = 0.2
+        self.lastTime = 0
+
+    def update(self):
+        distx = self.track()
+        if distx > 0:
+            self.facing = 1
+            self.ax = self.AX
+        elif distx < 0:
+            self.facing = 0
+            self.ax = -self.AX
+
+        self.vx += self.ax
+        self.vx = clip(self.vx, self.maxvx)
+        if self.knockbackvx != 0:
+            self.vx += self.knockbackvx
+            self.knockbackvx = chip(self.knockbackvx, self.mass)
+
+        fdreturn = self.fallingDetection()
+        if fdreturn != -1:
+            self.standOn = fdreturn
+
+        self.box.moving(self.vx, self.vy)
+        # self.damagebox.moving(self.vx, self.vy)
+
+        t = time.time()
+        if t - self.lastTime > self.interval:
+            self.lastTime = t
+            self.picindex = (self.picindex + 1) % self.piclen[0]
+
+monk_sources_right = [[
+    pygame.image.load('./resources/graphicals/monk/walk_001.png'),
+    pygame.image.load('./resources/graphicals/monk/walk_002.png'),
+    pygame.image.load('./resources/graphicals/monk/walk_003.png'),
+    pygame.image.load('./resources/graphicals/monk/walk_004.png'),
+    pygame.image.load('./resources/graphicals/monk/walk_005.png'),
+    pygame.image.load('./resources/graphicals/monk/walk_006.png'),
+]]
+monk_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for j in monk_sources_right]
+monk_sources = [monk_sources_left, monk_sources_right]

@@ -26,4 +26,3 @@ sounds_monsterdeath = [pygame.mixer.Sound('./resources/audiables/monsterdeath1.m
                        pygame.mixer.Sound('./resources/audiables/monsterdeath2.mp3')]
 
 sounds_click = pygame.mixer.Sound('./resources/audiables/click4.ogg')
-

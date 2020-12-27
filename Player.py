@@ -6,6 +6,14 @@ from Sounds import *
 initx       = 200
 inity       = base
 
+ICONSIZE = 32
+ICONOFFSET = 16
+
+bonus_icon = pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/warning_alt.png'), (ICONSIZE, ICONSIZE))
+dying_icon = pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/power.png'), (ICONSIZE, ICONSIZE))
+powerup_icon=pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/arrowUp.png'), (ICONSIZE, ICONSIZE))
+attack_icon =pygame.transform.scale(pygame.image.load('./resources/graphicals/icon/attack_power.png'), (ICONSIZE, ICONSIZE))
+
 def loadpic():
     player_sources_right = [
         [pygame.image.load('./resources/graphicals/player/idle_001.png'),
@@ -26,6 +34,7 @@ def loadpic():
          pygame.image.load('./resources/graphicals/player/attack_004.png'),
          pygame.image.load('./resources/graphicals/player/attack_005.png'),
          pygame.image.load('./resources/graphicals/player/attack_000.png'),]]
+
     # scale
     for i in range(len(player_sources_right)):
         for j in range(len(player_sources_right[i])):
@@ -58,15 +67,16 @@ class Player(MovableObj):
         w, h = self.pic[0][0][0].get_size()
         self.box = Box(w, h)
         self.damagebox = Box(wDAMAGEBOX, self.box.h)
-        self.damage = 20
+        self.damage = PLAYERATTACK
+        self.powerup = 1
         self.mass = PLAYERMASS
-        self.knockback = 20
+        self.knockback = PLAYERKNOCKBACK
         self.knockbackvx = 0
         self.lastTime = [0, 0, 0, 0, 0]
         self.lastFootstep = 0
         self.footstepInterval = 0.3
         self.firstLand = 0
-        self.lastTimeInvincible = 0
+        self.lastRush = 0
         self.interval = [IDLEINTERVAL, MOVEINTERVAL, NOINTERVAL, NOINTERVAL, ATTACKINTERVAL]
         self.lastTimeInvincible = 0
         self.build()
@@ -90,6 +100,9 @@ class Player(MovableObj):
             random.choice(sounds_attack).play()
             self.attacking = 1
             self.shiftState(ATTACK)
+            if time.time()- self.lastRush < RUSHATTACKTIME:
+                self.damage = PLAYERRUSHATTACK
+                self.knockback = PLAYERRUSHKNOCKBACK
             self.damagebox.setPosition(self.box.centerx + (self.facing*2-1)*self.damagebox.w/2, self.box.y)
             self.lastTime[ATTACK[0]] = time.time()
 
@@ -112,6 +125,7 @@ class Player(MovableObj):
         if rush == 1:
             self.vx *= PLAYERRUSHBONUS
             sounds_jump.play()
+            self.lastRush = time.time()
 
         if self.box.x + self.vx + self.box.w > WIDTH:
             self.vx = 0
@@ -148,6 +162,8 @@ class Player(MovableObj):
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
             self.attacking = 0
+            self.damage = PLAYERATTACK
+            self.knockback = PLAYERKNOCKBACK
         if self.invincible and t - self.lastTimeInvincible > INVINCIBILITYTIME:
             self.invincible = 0
     
@@ -160,6 +176,10 @@ class Player(MovableObj):
         self.box.show(GREEN)
         if self.attacking:
             self.damagebox.show()
+        if time.time() - self.lastRush < RUSHATTACKTIME:
+            mainsurf.blit(bonus_icon,(self.box.centerx - bonus_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET * 2))
+        if self.health / PLAYERHEALTH <= 0.2 and (int(time.time() * 10)) % 2:
+            mainsurf.blit(dying_icon, (self.box.centerx - dying_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*2 - ICONOFFSET * 3))
 
     def takeDamage(self, damage, towards, knockback):
         if not self.invincible:
@@ -167,7 +187,7 @@ class Player(MovableObj):
             self.invincible = 1
             self.lastTimeInvincible = time.time()
             self.knockbackvx = (towards * 2 - 1)* knockback
-            self.vy = knockback /2
+            self.vy = knockback / self.mass * 2
             random.choice(sounds_player_pain).play()
 
     def causeDamage(self, enemybox):
