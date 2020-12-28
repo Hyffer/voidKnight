@@ -165,15 +165,28 @@ def main(mode):
     return switch
 
 def welcome():
-    mainsurf.fill((0, 0, 0))
-    mainsurf.blit(mask_icon, (hWIDTH - 64, 20))
-    renderText("VOID KNIGHT", base = rtC, font=FONTTITLE, position = (hWIDTH , 200), size = 80)
-    startrect = renderText("Challenge Mode", base = rtC, position=(hWIDTH, HEIGHT * 0.49), size = 40)
-    start_endlessrect = renderText("Endless Mode", base = rtC, position=(hWIDTH, HEIGHT * 0.62), size = 40)
-    quitrect = renderText("Quit", base = rtC, position=(hWIDTH, HEIGHT * 0.81), size = 40)
-    pygame.display.update()
+    lights = []
+    lastspawn = 0
     switch = 1
     while switch == 1:
+        mainsurf.fill((0, 0, 0))
+        if len(lights) < LIGHTNUM and time.time() - lastspawn > LIGHTDOTINTERVAL:
+            lastspawn = time.time()
+            size = random.randint(5, 10) * 10
+            x = random.randint(0, WIDTH)
+            starty = HEIGHT + size / 2
+            endy = random.randint(HEIGHT * 3 / 4, HEIGHT * 5 / 6)
+            lights.append(LightDot(x, starty, endy, size))
+        for i in lights:
+            if i.update():
+                lights.remove(i)
+            i.draw()
+        mainsurf.blit(mask_icon, (hWIDTH - 64, 20))
+        renderText("VOID KNIGHT", base=rtC, font=FONTTITLE, position=(hWIDTH, 200), size=80)
+        startrect = renderText("Challenge Mode", base=rtC, position=(hWIDTH, HEIGHT * 0.49), size=40)
+        start_endlessrect = renderText("Endless Mode", base=rtC, position=(hWIDTH, HEIGHT * 0.62), size=40)
+        quitrect = renderText("Quit", base=rtC, position=(hWIDTH, HEIGHT * 0.81), size=40)
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONUP:
                 mousex, mousey = event.pos

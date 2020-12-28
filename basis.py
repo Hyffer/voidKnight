@@ -9,6 +9,7 @@ DEBUG = False
 WIDTH       = 1024
 hWIDTH      = WIDTH/2
 HEIGHT      = 768
+hHEIGHT     = HEIGHT/2
 base        = 32
 
 WHITE       = (255, 255, 255)
@@ -19,6 +20,12 @@ FONTTITLE = './resources/fonts/Supernatural_Knight.ttf'
 FONT = './resources/fonts/Trajan.otf'
 ARRAYFONT = './resources/fonts/SGK075.ttf'
 DEFAULTFONT = None
+
+LIGHTDOTSPEED=1
+LIGHTDOTSPEEDRANGE = 2
+LIGHTNUM    = 30
+DOTENDSIZE  = 40
+LIGHTDOTINTERVAL = 0.3
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 mistrect    = pygame.Surface((WIDTH, HEIGHT))
@@ -183,6 +190,32 @@ class StillObj:
         self.drawy = HEIGHT - self.y - self.h
     def draw(self):
         mainsurf.blit(self.img, (self.x, self.drawy))
+
+lightraw = pygame.image.load('./resources/graphicals/icon/lightdot.png')
+class LightDot:
+    def __init__(self, x, starty, endy, size):
+        self.x = x
+        self.starty = starty
+        self.y = starty
+        self.size = size
+        self.endsize = DOTENDSIZE + random.randint(-2, 2) * 5
+        self.endy = endy
+        self.speed = LIGHTDOTSPEED + random.randint(0, 2)
+        self.percentage = 1
+    # returns 1 if dead
+    def update(self):
+        self.y -= self.speed
+        if self.y <= self.endy:
+            return 1
+        self.percentage = (self.y - self.endy) /(self.starty - self.endy)
+        return 0
+    def draw(self):
+        newsize = int(self.size * self.percentage + self.endsize)
+        img = pygame.transform.scale(lightraw, (newsize, newsize))
+        if self.percentage < 0.2:
+            img.set_alpha(int(self.percentage * 10 * 128))
+        w, h = img.get_size()
+        mainsurf.blit(img, (int(self.x - w/2), int(self.y - h/2)))
 
 def clip(v, vmax):
     if v > vmax:
