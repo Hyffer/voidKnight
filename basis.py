@@ -17,6 +17,8 @@ RED         = (255, 0, 0)
 GREEN       = (0, 255, 0)
 FONTTITLE = './resources/fonts/Supernatural_Knight.ttf'
 FONT = './resources/fonts/Trajan.otf'
+ARRAYFONT = './resources/fonts/SGK075.ttf'
+DEFAULTFONT = None
 
 mainsurf    = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 mistrect    = pygame.Surface((WIDTH, HEIGHT))
