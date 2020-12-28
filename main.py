@@ -241,7 +241,12 @@ def win():
 def dead():
     music.stop()
     mainsurf.fill((0, 0, 0))
-    renderText("DEAD")
+    renderText("CONNECTION REJECTED.", base = rtC, position = (hWIDTH, HEIGHT / 2), size = 48)
+    if mode == m_endless:
+        renderText("{} enemies slain".format(score[0]), base = rtC, position = (hWIDTH, HEIGHT / 2 + 60))
+    if mode == m_challenge:
+        renderText("{} waves endured".format(score[1]), base=rtC, position=(hWIDTH, HEIGHT / 2 + 60))
+        renderText("{} enemies slain".format(score[0]), base=rtC, position=(hWIDTH, HEIGHT / 2 + 120))
     pygame.display.update()
     switch = 1
     while switch == 1:
