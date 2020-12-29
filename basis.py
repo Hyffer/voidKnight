@@ -18,6 +18,8 @@ RED         = (255, 0, 0)
 GREEN       = (0, 255, 0)
 FONTTITLE = './resources/fonts/Supernatural_Knight.ttf'
 FONT = './resources/fonts/Trajan.otf'
+ARRAYFONT = './resources/fonts/SGK075.ttf'
+DEFAULTFONT = None
 
 LIGHTDOTSPEED=1
 LIGHTDOTSPEEDRANGE = 2

@@ -254,8 +254,10 @@ def win():
 
 def dead():
     music.stop()
-    mainsurf.fill((0, 0, 0))
-    renderText("CONNECTION REJECTED.", base = rtC, position = (hWIDTH, HEIGHT / 2), size = 48)
+    #mainsurf.fill((0, 0, 0))
+    #renderText("CONNECTION REJECTED.", base = rtC, position = (hWIDTH, HEIGHT / 2), size = 48)
+    mainsurf.fill((0, 0, 255))
+    renderText("CONNECTION REJECTED.", base = rtC, position = (hWIDTH, HEIGHT / 2), font = ARRAYFONT, size = 100)
     if mode == m_endless:
         renderText("{} enemies slain".format(score[0]), base = rtC, position = (hWIDTH, HEIGHT / 2 + 60))
     if mode == m_challenge:
@@ -280,7 +282,6 @@ pause_icon  = pygame.image.load('./resources/graphicals/icon/pause.png')
 
 pygame.display.set_caption('voidKnight')
 pygame.display.set_icon(pygame.image.load('./resources/graphicals/icon/gameicon.png'))
-DEFAULTFONT = None
 
 player = Player()
 list_player.append(player)
