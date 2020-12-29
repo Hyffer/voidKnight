@@ -70,6 +70,7 @@ def restart():
     player.build()
     score[0] = 0
     score[1] = 0
+    score[2] = 0
 
 def main(mode):
     event_list = []
@@ -138,7 +139,7 @@ def main(mode):
             if player.health <= 0:
                 switch = s_dead
             if player.attacking and enemy.box.isCollideWith(player.damagebox):
-                player.health += PLAYERREGEN * enemy.takeDamage(player.facing, player.damage, player.knockback + random.randint(-5, 5))
+                player.health += (1 + player.powerup * PLAYERATTACKBONUS) * PLAYERREGEN * enemy.takeDamage(player.facing, player.damage, player.knockback + random.randint(-5, 5))
         player.health = clip(player.health, PLAYERHEALTH)
         # end player attack
         attack = 0

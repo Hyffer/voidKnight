@@ -5,6 +5,25 @@ from basis import *
 from EnemyVirtualInput import *
 from Sounds import *
 
+ENEMYHP_K       = 1
+ENEMYATTACK_K   = 0.5
+ENEMYSPEED_K    = 0.05
+GHOULHP0        = 30
+GHOULATTACK0    = 30
+GHOULSPEED0     = 9
+GHOULMASS0      = 5
+GHOULKNOCKBACK0 = 20
+BALLHP0         = 20
+BALLATTACK0     = 50
+BALLSPEED0      = 12
+BALLMASS0       = 3
+BALLKNOCKBACK0  = 30
+MONKHP0         = 60
+MONKATTACK0     = 20
+MONKSPEED0      = 7
+MONKMASS0       = 10
+MONKKNOCKBACK0  = 15
+
 class Enemy(MovableObj, EnemyVI):
     def __init__(self, pic, health, damage, knockback, mass, x, y, enlarge):
         # picture init
@@ -21,7 +40,7 @@ class Enemy(MovableObj, EnemyVI):
         self.mass = mass
         # collision box init
         w, h = self.pic[0][0][0].get_size()
-        self.invicibility = ATTACKINTERVAL* 4
+        self.invicibility = ATTACKINTERVAL* 5
         self.lastHit = 0
         self.box = Box(w, h)
         self.damagebox = Box(w, h)
@@ -43,6 +62,7 @@ class Enemy(MovableObj, EnemyVI):
             return 0
         self.lastHit = t
         self.health -= damage
+        score[2] += 1
         if self.health <= 0:
             list_enemy.remove(self)
             random.choice(sounds_monsterdeath).play()
@@ -85,7 +105,7 @@ movingenemy_sources_left = [[pygame.image.load('./resources/graphicals/painbox.p
 movingenemy_sources = [movingenemy_sources_left]
 
 class Ghoul(Enemy):
-    def __init__(self, x, y, health = 200, damage = 50 , maxvx = 7, AX = 1, knockback = 20, mass = 5, enlarge = 1):
+    def __init__(self, x, y, health = 200, damage = 50 , maxvx = 7, AX = 3, knockback = 20, mass = 5, enlarge = 1):
         Enemy.__init__(self, ghoul_sources, health, damage, knockback, mass, x, y, enlarge)
         self.maxvx = maxvx
         self.AX = AX
@@ -178,7 +198,7 @@ painball_sources_left = [[pygame.transform.flip(i, True, False) for i in j] for 
 painball_sources = [painball_sources_left, painball_sources_right]
 
 class Monk(Enemy):
-    def __init__(self, x, y, health=200, damage=50, maxvx=7, AX=1, knockback=20, mass=5, enlarge=1):
+    def __init__(self, x, y, health=200, damage=50, maxvx=7, AX=4, knockback=20, mass=5, enlarge=1):
         Enemy.__init__(self, monk_sources, health, damage, knockback, mass, x, y, enlarge)
         self.maxvx = maxvx
         self.AX = AX

@@ -21,6 +21,11 @@ PAUSEPOSTSPAWN      = 6
 PAUSEBETWEENSPAWN   = 85
 PAUSEBETWEENSPAWN_ENDLESS= 15
 
+# out of 0 - 99
+GHOULUPPER  = 50
+BALLUPPER   = 88
+MONKUPPER   = 100
+
 class Spawner(StillObj):
     def __init__(self, pics, x, y):
         StillObj.__init__(self, pics[0], x, y)
@@ -94,6 +99,20 @@ class Spawner(StillObj):
             return PainBall(self.centerx + random.randint(-3, 3) * 10, self.y, 60, 70, enlarge = largeratio)
         elif r == 2:
             return Monk(self.centerx + random.randint(-3, 3) * 10, self.y, enlarge = largeratio + 1)
+
+    def getEnemy_endless(self):
+        r = random.randint(0, 100)
+
+        if r <= GHOULUPPER:
+            hp, damage, speed, mass, knockback, enlarge = ghoulcalc(score[0])
+            return Ghoul(self.centerx + random.randint(-3, 3) * 10, self.y, hp, damage, maxvx = speed , mass = mass, knockback = knockback,enlarge = enlarge)
+        elif r <= BALLUPPER:
+            hp, damage, speed , mass, knockback, enlarge= ballcalc(score[0])
+            return PainBall(self.centerx + random.randint(-3, 3) * 10, self.y, hp, damage, maxvx = speed , mass = mass, knockback = knockback, enlarge = enlarge)
+        elif r <= MONKUPPER:
+            hp, damage, speed , mass, knockback, enlarge= monkcalc(score[0])
+            return Monk(self.centerx + random.randint(-3, 3) * 10, self.y, hp, damage, maxvx = speed , mass = mass, knockback = knockback, enlarge = enlarge)
+
     def checkSpawn(self):
         if self.lock:
             return
@@ -113,7 +132,7 @@ class Spawner(StillObj):
         if spawnnum:
             self.lock = True
             for i in range(spawnnum):
-                self.enemylist.append(self.getEnemy())
+                self.enemylist.append(self.getEnemy_endless())
             self.state = sOPEN
             self.spawning = sNOSPAWN
             self.buf = PAUSEPREOPEN
@@ -128,3 +147,14 @@ gate_resources = [pygame.image.load('./resources/graphicals/spawner_gate/gate_00
                   pygame.image.load('./resources/graphicals/spawner_gate/gate_001.png')]
 warning_icon = pygame.image.load('./resources/graphicals/icon/warning_alt.png')
 gate = Spawner(gate_resources, 800, base)
+
+# returns hp, damage, speed, mass, knockback, enlarge
+def ghoulcalc(x):
+    largeratio = math.log2(score[0]) / 20 + 1 if score[0] else 1
+    return GHOULHP0 + x * ENEMYHP_K, GHOULATTACK0 + x* ENEMYATTACK_K, GHOULSPEED0 + x * ENEMYSPEED_K * 0.7, GHOULMASS0 * largeratio, GHOULKNOCKBACK0 * largeratio, largeratio + 0.5
+def ballcalc(x):
+    largeratio = math.log2(score[0]) / 20 + 1 if score[0] else 1
+    return BALLHP0 + x * ENEMYHP_K, BALLATTACK0 + x * ENEMYATTACK_K, BALLSPEED0 + x * ENEMYSPEED_K, BALLMASS0 * largeratio, BALLKNOCKBACK0 * largeratio, largeratio
+def monkcalc(x):
+    largeratio = math.log2(score[0]) / 20 + 1 if score[0] else 1
+    return MONKHP0 + x * ENEMYHP_K, MONKATTACK0 + x * ENEMYATTACK_K, MONKSPEED0 + x * ENEMYSPEED_K * 0.5, MONKMASS0 * largeratio, MONKKNOCKBACK0 * largeratio, largeratio + 1

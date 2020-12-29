@@ -21,7 +21,7 @@ FONT = './resources/fonts/Trajan.otf'
 
 LIGHTDOTSPEED=1
 LIGHTDOTSPEEDRANGE = 2
-LIGHTNUM    = 30
+LIGHTNUM    = 20
 DOTENDSIZE  = 40
 LIGHTDOTINTERVAL = 0.3
 
@@ -39,6 +39,8 @@ PLAYERSPEED = 10
 PLAYERRUSHBONUS= 20
 PLAYERHEALTH= 500
 PLAYERATTACK= 20
+PLAYERATTACKBONUS = 0.2
+PLAYERBONUSTHRESHOLD=75
 PLAYERKNOCKBACK = 20
 PLAYERRUSHATTACK= 50
 PLAYERRUSHKNOCKBACK = 40
@@ -90,7 +92,7 @@ def resetList():
     while len(list_enemy) != 0:
         list_enemy.pop()
 
-score = [0, 0]
+score = [0, 0, 0]
 
 class Box:
     def __init__(self, w, h):

@@ -69,7 +69,7 @@ class Player(MovableObj):
         self.box = Box(w, h)
         self.damagebox = Box(wDAMAGEBOX, self.box.h)
         self.damage = PLAYERATTACK
-        self.powerup = 1
+        self.powerup = 0
         self.mass = PLAYERMASS
         self.knockback = PLAYERKNOCKBACK
         self.knockbackvx = 0
@@ -90,6 +90,7 @@ class Player(MovableObj):
         self.box.setPosition(initx, inity)
         
     def update(self, direction, rush, jump, attack):
+        self.powerup = int(score[2] / PLAYERBONUSTHRESHOLD)
         t = time.time()
         # moving state update
         # y
@@ -104,8 +105,8 @@ class Player(MovableObj):
             self.attacking = 1
             self.shiftState(ATTACK)
             if time.time()- self.lastRush < RUSHATTACKTIME:
-                self.damage = PLAYERRUSHATTACK
-                self.knockback = PLAYERRUSHKNOCKBACK
+                self.damage = PLAYERRUSHATTACK * (1 + self.powerup * PLAYERATTACKBONUS)
+                self.knockback = PLAYERRUSHKNOCKBACK * (1 + self.powerup * PLAYERATTACKBONUS)
             self.damagebox.setPosition(self.box.centerx + (self.facing*2-1)*self.damagebox.w/2, self.box.y)
             self.lastTime[ATTACK[0]] = time.time()
 
@@ -165,8 +166,8 @@ class Player(MovableObj):
         if self.state == ATTACK and self.picindex == self.piclen[ATTACK[0]] -1:
             self.shiftState(IDLE, pATTACK)
             self.attacking = 0
-            self.damage = PLAYERATTACK
-            self.knockback = PLAYERKNOCKBACK
+            self.damage = PLAYERATTACK * (1 + self.powerup * PLAYERATTACKBONUS)
+            self.knockback = PLAYERKNOCKBACK * (1 + self.powerup * PLAYERATTACKBONUS)
         if self.invincible and t - self.lastTimeInvincible > INVINCIBILITYTIME:
             self.invincible = 0
     
@@ -183,6 +184,10 @@ class Player(MovableObj):
         # player status ui
         if t - self.lastAttack >= disabilitytime:
             mainsurf.blit(attack_icon, (self.box.centerx - attack_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))
+        if self.powerup:
+            for i in range(self.powerup):
+                mainsurf.blit(powerup_icon, (
+                self.box.centerx + attack_icon.get_size()[0] / 2 + (i + 1) * ICONOFFSET + i * powerup_icon.get_size()[0]/2, self.box.drawy - ICONSIZE - ICONOFFSET))
         if t - self.lastRush < RUSHATTACKTIME:
             mainsurf.blit(bonus_icon,(self.box.centerx - bonus_icon.get_size()[0]/2, self.box.drawy - ICONSIZE*2 - ICONOFFSET * 2))
         if self.health / PLAYERHEALTH <= 0.2 and (int(time.time() * 10)) % 2:
